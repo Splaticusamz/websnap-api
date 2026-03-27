@@ -1,0 +1,16 @@
+[
+  {
+    "key": "wsnap_demo_key_001",
+    "name": "Demo Key 1",
+    "tier": "pro",
+    "createdAt": "2026-03-27T00:00:00Z",
+    "enabled": true
+  },
+  {
+    "key": "wsnap_demo_key_002",
+    "name": "Demo Key 2",
+    "tier": "free",
+    "createdAt": "2026-03-27T00:00:00Z",
+    "enabled": true
+  }
+]

@@ -47,15 +47,15 @@ export default function Dashboard() {
   const phases = [
     {
       name: "Phase 1: Core API",
-      status: "in-progress" as string,
+      status: "done" as string,
       items: [
         { task: "Next.js scaffold + repo", done: true },
-        { task: "POST /api/snap endpoint", done: false },
-        { task: "HTML parsing (Cheerio)", done: false },
-        { task: "OG tags / meta extraction", done: false },
-        { task: "Tech stack detection", done: false },
-        { task: "Rate limiting", done: false },
-        { task: "API key auth", done: false },
+        { task: "POST /api/snap endpoint", done: true },
+        { task: "HTML parsing (Cheerio)", done: true },
+        { task: "OG tags / meta extraction", done: true },
+        { task: "Tech stack detection", done: true },
+        { task: "Rate limiting", done: true },
+        { task: "API key auth", done: true },
         { task: "Landing page + docs", done: true },
         { task: "Deploy to Vercel", done: true },
       ],
@@ -109,8 +109,8 @@ export default function Dashboard() {
             <span className="px-3 py-1.5 bg-emerald-900/40 text-emerald-400 rounded-lg text-sm font-medium border border-emerald-800">
               🟢 Vercel: Deployed
             </span>
-            <span className="px-3 py-1.5 bg-amber-900/40 text-amber-400 rounded-lg text-sm font-medium border border-amber-800">
-              🔨 API: Building
+            <span className="px-3 py-1.5 bg-emerald-900/40 text-emerald-400 rounded-lg text-sm font-medium border border-emerald-800">
+              ✅ API: Live
             </span>
           </div>
         </div>
