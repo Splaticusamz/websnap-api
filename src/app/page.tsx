@@ -115,8 +115,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { tier: "Free", price: "$0", desc: "100 requests/day", features: ["All extraction features", "Rate limited", "No API key needed"] },
-              { tier: "Pro", price: "$9/mo", desc: "10,000 requests/month", features: ["Priority rate limits", "API key", "Email support"], highlight: true },
-              { tier: "Business", price: "$29/mo", desc: "100,000 requests/month", features: ["Highest rate limits", "Dedicated key", "Priority support"] },
+              { tier: "Pro", price: "$19/mo", desc: "10,000 requests/month", features: ["Priority rate limits", "API key", "Email support"], highlight: true },
+              { tier: "Business", price: "$79/mo", desc: "100,000 requests/month", features: ["Highest rate limits", "Dedicated key", "Priority support"] },
             ].map((p) => (
               <div key={p.tier} className={`rounded-xl p-6 border ${p.highlight ? "bg-blue-950/30 border-blue-700" : "bg-gray-900 border-gray-800"}`}>
                 <h3 className="text-lg font-bold">{p.tier}</h3>
@@ -139,10 +139,10 @@ export default function Home() {
           <a href="/docs" className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition">
             Documentation
           </a>
-          <a href="/dashboard" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition">
-            Dashboard
+          <a href="/docs" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition">
+            API Docs
           </a>
-          <a href="https://github.com/botsix-workspace/websnap-api" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition">
+          <a href="https://github.com/Splaticusamz/websnap-api" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition">
             GitHub
           </a>
         </div>

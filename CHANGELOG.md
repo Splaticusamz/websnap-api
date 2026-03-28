@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.2] - 2026-03-28
+
+### Added
+- New unlinked private-ish ops dashboard at `/ops/websnap-pulse-20260328`
+- Visually rich internal dashboard with system diagrams, automation flow, revenue timeline, complementary stats, and hourly development tracker
+- Route metadata configured for `noindex, nofollow`
+
+### Changed
+- Removed public homepage link to the dashboard route
+- Synced homepage pricing and GitHub link with current project state
+
 ## [0.1.1] - 2026-03-28
 
 ### Added
