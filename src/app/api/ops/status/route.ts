@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { config } from "@/lib/config";
-import { getWebhookAuthMode } from "@/lib/billing";
-import { getPlanEntries } from "@/lib/plans";
+import { getOperatorSnapshot } from "@/lib/operator";
 
 function isAuthorized(req: NextRequest) {
   const token = config.ops.token;
@@ -20,13 +19,7 @@ export async function GET(req: NextRequest) {
   }
 
   const scope = req.nextUrl.searchParams.get("scope") || "manual";
-  const plans = getPlanEntries().map((plan) => ({
-    tier: plan.key,
-    monthlyPriceUsd: plan.monthlyPriceUsd,
-    monthlyRequests: plan.monthlyRequests,
-    requestsPerWindow: plan.requestsPerWindow,
-    burstPerMinute: plan.burstPerMinute,
-  }));
+  const snapshot = getOperatorSnapshot();
 
   return NextResponse.json({
     ok: true,
@@ -34,13 +27,13 @@ export async function GET(req: NextRequest) {
     checkedAt: new Date().toISOString(),
     automation: {
       cronConfigured: true,
-      webhookMode: getWebhookAuthMode(),
-      checkoutConfigured: {
-        pro: Boolean(config.billing.proCheckoutLink || config.billing.proPriceId),
-        business: Boolean(config.billing.businessCheckoutLink || config.billing.businessPriceId),
-      },
+      webhookMode: snapshot.webhookMode,
+      checkoutConfigured: snapshot.checkoutConfigured,
     },
-    plans,
-    appUrl: config.appUrl,
+    plans: snapshot.tierBreakdown,
+    apiKeys: snapshot.apiKeys,
+    usage: snapshot.usage,
+    onboardingChecklist: snapshot.onboardingChecklist,
+    appUrl: snapshot.appUrl,
   });
 }

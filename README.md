@@ -10,6 +10,8 @@ WebSnap API extracts titles, descriptions, Open Graph tags, Twitter cards, links
 - Core extraction API shipped
 - Pricing and packaging in place
 - Checkout + webhook + cron automation scaffolding added
+- Landing page now includes direct paid-plan checkout testing + fallback messaging
+- Operator dashboard now reflects real billing/config readiness
 - Ready for direct docs-led distribution and RapidAPI submission prep
 
 ## Why this product
@@ -128,6 +130,7 @@ Important variables include:
 - rate limiting and usage counters are in-memory for now
 - paid provisioning still depends on real Stripe/live account config
 - no persistent database yet for usage or customers
+- manual fallback is clear, but full self-serve checkout still needs live Stripe configuration
 - bot-protected targets may need future browser fallback
 
 ## Near-Term Next Moves

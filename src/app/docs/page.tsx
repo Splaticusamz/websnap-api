@@ -34,7 +34,7 @@ export default function DocsPage() {
       "includePerformance": true
     }
   }'`}</code></pre>
-          <p className="mt-4 text-sm text-slate-400">No dashboard maze. Send a URL, inspect the JSON, then automate around it.</p>
+          <p className="mt-4 text-sm text-slate-400">No dashboard maze. Send a URL, inspect the JSON, then automate around it. Paid-plan checkout testing is also available directly from the landing page.</p>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
@@ -118,7 +118,7 @@ export default function DocsPage() {
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <p className="font-semibold text-white">GET /api/ops/status</p>
-                <p className="mt-2">Ops snapshot endpoint used by cron or internal health checks. Returns pricing, checkout, and automation readiness.</p>
+                <p className="mt-2">Ops snapshot endpoint used by cron or internal health checks. Returns pricing, checkout, and automation readiness. The operator dashboard reads the same readiness concepts so UI status matches actual config state.</p>
               </div>
             </div>
           </div>

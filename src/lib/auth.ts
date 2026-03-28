@@ -15,7 +15,7 @@ export interface ApiKeyInfo {
   authenticated: true;
 }
 
-function loadApiKeys(): ApiKeyRecord[] {
+export function loadApiKeys(): ApiKeyRecord[] {
   const raw = process.env.API_KEYS_JSON;
   if (!raw) {
     return apiKeys as ApiKeyRecord[];
@@ -31,6 +31,26 @@ function loadApiKeys(): ApiKeyRecord[] {
   }
 
   return apiKeys as ApiKeyRecord[];
+}
+
+export interface ApiKeyInventoryItem {
+  rawKey: string;
+  maskedKey: string;
+  name: string;
+  tier: Tier;
+  createdAt?: string;
+  enabled: boolean;
+}
+
+export function getApiKeyInventory(): ApiKeyInventoryItem[] {
+  return loadApiKeys().map((record) => ({
+    rawKey: record.key,
+    maskedKey: `${record.key.slice(0, 5)}…${record.key.slice(-4)}`,
+    name: record.name,
+    tier: record.tier,
+    createdAt: record.createdAt,
+    enabled: record.enabled !== false,
+  }));
 }
 
 export function authenticateRequest(

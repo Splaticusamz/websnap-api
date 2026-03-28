@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.4] - 2026-03-28
+
+### Added
+- landing-page checkout tester with optional billing email capture and plan-specific state handling
+- operator-focused dashboard that reads real billing/config readiness instead of only static roadmap copy
+
+### Changed
+- improved homepage onboarding path from first API call to paid upgrade
+- updated private ops dashboard development tracker for the new checkout/operator tranche
+- expanded README current-status notes around conversion readiness and remaining checkout gaps
+
 ## [0.1.3] - 2026-03-28
 
 ### Added

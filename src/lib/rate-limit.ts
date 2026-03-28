@@ -1,3 +1,4 @@
+import { loadApiKeys } from "./auth";
 import { getPlan } from "./plans";
 import type { Tier } from "./plans";
 
@@ -23,6 +24,40 @@ export interface RateLimitResult {
   remaining: number;
   resetMs: number;
   headers: Record<string, string>;
+}
+
+export interface RateLimitSnapshotEntry {
+  subject: string;
+  tier: Tier;
+  requestCount: number;
+  limit: number;
+  remaining: number;
+  resetMs: number;
+  lastRequestAt: number | null;
+}
+
+export function getRateLimitSnapshot(): RateLimitSnapshotEntry[] {
+  const now = Date.now();
+  const apiKeys = loadApiKeys();
+
+  return Array.from(store.entries()).map(([subject, entry]) => {
+    const rawKey = subject.startsWith("key:") ? subject.slice(4) : null;
+    const matchedKey = rawKey ? apiKeys.find((apiKey) => apiKey.key === rawKey) : null;
+    const tier = matchedKey?.tier ?? "free";
+    const plan = getPlan(tier);
+    const timestamps = entry.timestamps.filter((t) => now - t < plan.windowMs);
+    const oldestInWindow = timestamps[0] ?? now;
+
+    return {
+      subject,
+      tier,
+      requestCount: timestamps.length,
+      limit: plan.requestsPerWindow,
+      remaining: Math.max(0, plan.requestsPerWindow - timestamps.length),
+      resetMs: oldestInWindow + plan.windowMs,
+      lastRequestAt: timestamps[timestamps.length - 1] ?? null,
+    };
+  });
 }
 
 export function checkRateLimit(key: string, tier: Tier): RateLimitResult {
