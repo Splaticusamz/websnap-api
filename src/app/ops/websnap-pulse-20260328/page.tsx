@@ -30,6 +30,7 @@ const phases: { name: string; status: string; color: string; tasks: [string, boo
       ["Private hustle dashboard", true],
       ["Hourly dev tracker", true],
       ["Conversion-focused landing + docs", true],
+      ["Proof/examples for buyers", true],
     ],
   },
   {
@@ -43,6 +44,7 @@ const phases: { name: string; status: string; color: string; tasks: [string, boo
       ["Vercel cron automation", true],
       ["Landing page checkout UX", true],
       ["Operator readiness dashboard", true],
+      ["Masked key inventory + usage visibility", true],
       ["Direct Stripe live config", false],
       ["First paid conversions", false],
     ],

@@ -3,11 +3,15 @@
 ## [0.1.4] - 2026-03-28
 
 ### Added
-- landing-page checkout tester with optional billing email capture and plan-specific state handling
-- operator-focused dashboard that reads real billing/config readiness instead of only static roadmap copy
+- reusable checkout CTA component with hosted-link redirect + manual fallback messaging
+- operator snapshot helper for masked API key inventory, onboarding readiness, and current-window usage data
+- richer docs examples covering lead enrichment, agent ingestion, and SEO QA workflows
 
 ### Changed
-- improved homepage onboarding path from first API call to paid upgrade
+- rebuilt `/dashboard` into an operator-facing monetization and readiness cockpit
+- expanded `/api/ops/status` to return API key inventory, usage snapshot, and launch checklist data
+- refreshed homepage conversion flow with stronger try-it, proof-of-value, and upgrade messaging
+- refreshed docs page with clearer onboarding, examples, and upgrade paths
 - updated private ops dashboard development tracker for the new checkout/operator tranche
 - expanded README current-status notes around conversion readiness and remaining checkout gaps
 

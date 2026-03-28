@@ -10,8 +10,9 @@ WebSnap API extracts titles, descriptions, Open Graph tags, Twitter cards, links
 - Core extraction API shipped
 - Pricing and packaging in place
 - Checkout + webhook + cron automation scaffolding added
-- Landing page now includes direct paid-plan checkout testing + fallback messaging
-- Operator dashboard now reflects real billing/config readiness
+- Home + docs now provide a stronger self-serve onboarding and proof-of-value path
+- Landing page and docs include direct paid-plan checkout testing + fallback messaging
+- Operator dashboard now reflects real billing/config readiness, masked key inventory, and current-window usage visibility
 - Ready for direct docs-led distribution and RapidAPI submission prep
 
 ## Why this product
@@ -60,6 +61,7 @@ This repo now includes automation-friendly infrastructure:
 - webhook receiver for provisioning events
 - Vercel cron config for scheduled ops checks
 - ops status endpoint for internal monitoring
+- masked API key inventory + recent in-memory usage snapshots for operators
 - env-based API key loading for automated provisioning paths
 
 ## Tech Stack

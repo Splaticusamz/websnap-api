@@ -1,28 +1,94 @@
+import { CheckoutCta } from "@/components/checkout-cta";
 import { formatPlanPrice, getPlanEntries } from "@/lib/plans";
 
 const plans = getPlanEntries();
 
+const examples = [
+  {
+    title: "Lead enrichment",
+    goal: "Pull company-site metadata and tech stack before outbound or qualification.",
+    request: `curl -X POST https://websnap-api.vercel.app/api/snap \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: your_key_here" \\
+  -d '{
+    "url": "https://vercel.com",
+    "options": {
+      "includeContent": true,
+      "includeTechStack": true,
+      "includePerformance": true
+    }
+  }'`,
+    result: `{
+  "title": "Vercel",
+  "description": "Develop. Preview. Ship.",
+  "techStack": [{ "name": "Next.js", "confidence": "high" }],
+  "performance": { "statusCode": 200 }
+}`,
+  },
+  {
+    title: "Docs ingestion for agents",
+    goal: "Turn public docs or blog pages into clean content blocks for retrieval and agent context.",
+    request: `{
+  "url": "https://nextjs.org/docs",
+  "options": {
+    "includeContent": true,
+    "includeTechStack": false,
+    "includePerformance": false
+  }
+}`,
+    result: `{
+  "title": "Next.js Documentation",
+  "mainContent": "Next.js Documentation...",
+  "links": [{ "href": "https://nextjs.org/docs/app" }]
+}`,
+  },
+  {
+    title: "SEO + metadata QA",
+    goal: "Collect OG tags, Twitter cards, canonicals, links, and images in a single response.",
+    request: `response.ogTags.title
+response.twitterCard.card
+response.canonical
+response.images`,
+    result: `Use the same /api/snap call; inspect metadata fields for QA dashboards or scheduled checks.`,
+  },
+];
+
 export default function DocsPage() {
   return (
     <main className="min-h-screen bg-gray-950 px-6 py-10 text-gray-100">
-      <div className="mx-auto max-w-5xl space-y-10">
+      <div className="mx-auto max-w-6xl space-y-10">
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
           <a href="/" className="text-sm text-cyan-300 hover:text-cyan-200">← Back to home</a>
-          <h1 className="mt-4 text-4xl font-black text-white">WebSnap API docs</h1>
-          <p className="mt-3 max-w-3xl text-slate-300">
-            One endpoint, fast setup, structured output. Use it for AI agents, scheduled jobs, webhook-triggered workflows,
-            lead enrichment, and metadata extraction from public webpages.
-          </p>
+          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1 className="text-4xl font-black text-white">WebSnap API docs</h1>
+              <p className="mt-3 max-w-3xl text-slate-300">
+                One endpoint, fast setup, structured output. Use it for AI agents, scheduled jobs, webhook-triggered workflows,
+                lead enrichment, and metadata extraction from public webpages.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 text-sm">
+              <a href="#quickstart" className="rounded-xl bg-cyan-400 px-4 py-3 font-semibold text-gray-950 hover:bg-cyan-300">Start with curl</a>
+              <a href="#plans" className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white hover:bg-white/10">Plans + upgrade</a>
+            </div>
+          </div>
           <div className="mt-5 flex flex-wrap gap-3 text-sm">
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">POST /api/snap</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">GET /api/health</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">POST /api/billing/checkout</span>
             <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">POST /api/billing/webhook</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2">GET /api/ops/status</span>
           </div>
         </div>
 
-        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-          <h2 className="text-2xl font-bold text-white">Quick start</h2>
+        <section id="quickstart" className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Quick start</h2>
+              <p className="mt-1 text-sm text-slate-400">Send one request, inspect the JSON, then decide whether you need a paid tier.</p>
+            </div>
+            <p className="text-sm text-emerald-300">No dashboard maze. No SDK required.</p>
+          </div>
           <pre className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-sm text-slate-200"><code>{`curl -X POST https://websnap-api.vercel.app/api/snap \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: your_key_here" \\
@@ -34,7 +100,6 @@ export default function DocsPage() {
       "includePerformance": true
     }
   }'`}</code></pre>
-          <p className="mt-4 text-sm text-slate-400">No dashboard maze. Send a URL, inspect the JSON, then automate around it. Paid-plan checkout testing is also available directly from the landing page.</p>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
@@ -85,8 +150,44 @@ export default function DocsPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-          <h2 className="text-2xl font-bold text-white">Rate limits and plans</h2>
+        <section id="examples" className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Credible use-case examples</h2>
+              <p className="text-sm text-slate-400">Examples that map directly to buying intent: agents, enrichment, and metadata operations.</p>
+            </div>
+            <a href="/dashboard" className="text-sm font-medium text-cyan-300 hover:text-cyan-200">Operator dashboard →</a>
+          </div>
+          <div className="mt-5 grid gap-4 xl:grid-cols-3">
+            {examples.map((example) => (
+              <div key={example.title} className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <h3 className="font-semibold text-white">{example.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{example.goal}</p>
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Request</p>
+                    <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-xs leading-6 text-cyan-100">{example.request}</pre>
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Result</p>
+                    <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-xs leading-6 text-emerald-200">{example.result}</pre>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="plans" className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Rate limits and plans</h2>
+              <p className="text-sm text-slate-400">Response headers expose plan and remaining quota so operators can see what is happening right now.</p>
+            </div>
+            <p className="text-sm text-slate-400">
+              Headers: <code className="text-slate-200">X-RateLimit-Limit</code>, <code className="text-slate-200">X-RateLimit-Remaining</code>, <code className="text-slate-200">X-RateLimit-Reset</code>, <code className="text-slate-200">X-RateLimit-Plan</code>, <code className="text-slate-200">X-RateLimit-Window</code>
+            </p>
+          </div>
           <div className="mt-5 grid gap-4 lg:grid-cols-3">
             {plans.map((plan) => (
               <div key={plan.key} className={`rounded-2xl border p-5 ${plan.key === "pro" ? "border-cyan-400/30 bg-cyan-500/10" : "border-white/10 bg-black/20"}`}>
@@ -96,12 +197,20 @@ export default function DocsPage() {
                 <ul className="mt-4 space-y-2 text-sm text-slate-200">
                   {plan.features.map((feature) => <li key={feature}>• {feature}</li>)}
                 </ul>
+                <div className="mt-5">
+                  {plan.key === "free" ? (
+                    <a href="/" className="inline-flex rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white hover:bg-white/10">Start free</a>
+                  ) : (
+                    <CheckoutCta
+                      plan={plan.key}
+                      label={plan.cta}
+                      className={`inline-flex rounded-xl px-4 py-3 font-semibold transition ${plan.key === "pro" ? "bg-cyan-400 text-gray-950 hover:bg-cyan-300" : "border border-white/10 bg-white/5 text-white hover:bg-white/10"}`}
+                    />
+                  )}
+                </div>
               </div>
             ))}
           </div>
-          <p className="mt-4 text-sm text-slate-400">
-            Response headers include <code className="text-slate-200">X-RateLimit-Limit</code>, <code className="text-slate-200">X-RateLimit-Remaining</code>, <code className="text-slate-200">X-RateLimit-Reset</code>, <code className="text-slate-200">X-RateLimit-Plan</code>, and <code className="text-slate-200">X-RateLimit-Window</code>.
-          </p>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
@@ -110,7 +219,7 @@ export default function DocsPage() {
             <div className="mt-5 space-y-4 text-sm text-slate-300">
               <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <p className="font-semibold text-white">POST /api/billing/checkout</p>
-                <p className="mt-2">Send <code className="text-slate-200">{`{"plan":"pro"}`}</code> or <code className="text-slate-200">{`{"plan":"business"}`}</code> to resolve the current checkout target.</p>
+                <p className="mt-2">Send <code className="text-slate-200">{"{"}"plan":"pro"{"}"}</code> or <code className="text-slate-200">{"{"}"plan":"business"{"}"}</code> to resolve the current checkout target.</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <p className="font-semibold text-white">POST /api/billing/webhook</p>
@@ -118,62 +227,32 @@ export default function DocsPage() {
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <p className="font-semibold text-white">GET /api/ops/status</p>
-                <p className="mt-2">Ops snapshot endpoint used by cron or internal health checks. Returns pricing, checkout, and automation readiness. The operator dashboard reads the same readiness concepts so UI status matches actual config state.</p>
+                <p className="mt-2">Protected ops snapshot endpoint used by cron or internal checks. Now includes onboarding readiness, checkout coverage, key inventory, and recent usage-window visibility.</p>
               </div>
             </div>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-            <h2 className="text-2xl font-bold text-white">Use cases</h2>
-            <div className="mt-5 grid gap-3 text-sm text-slate-300">
-              {[
-                "Lead enrichment from company homepages",
-                "Tech stack lookup before outreach",
-                "Article ingestion for AI agents",
-                "Scheduled metadata checks in cron jobs",
-                "Webhook-triggered URL parsing in pipelines",
-                "SEO / link / content extraction for internal tools",
-              ].map((item) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-black/20 p-4">{item}</div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-          <h2 className="text-2xl font-bold text-white">Error codes</h2>
-          <div className="mt-5 overflow-x-auto rounded-2xl border border-white/10 bg-black/20 p-4">
-            <table className="w-full text-left text-sm text-slate-300">
-              <thead className="text-slate-400">
-                <tr><th className="pb-3 pr-4">Code</th><th className="pb-3 pr-4">Meaning</th><th className="pb-3">Example</th></tr>
-              </thead>
-              <tbody>
-                {[
-                  ["400", "Bad Request", "Missing url, invalid JSON, invalid plan"],
-                  ["401", "Unauthorized", "Webhook or ops endpoint missing secret"],
-                  ["422", "Unprocessable", "Non-HTML content type"],
-                  ["429", "Rate Limited", "Too many requests in current window"],
-                  ["502", "Bad Gateway", "Target URL unreachable"],
-                  ["503", "Unavailable", "Checkout or webhook config missing"],
-                  ["504", "Timeout", "Target took too long to respond"],
-                ].map(([code, meaning, example]) => (
-                  <tr key={code} className="border-t border-white/10"><td className="py-3 pr-4 font-mono">{code}</td><td className="pr-4">{meaning}</td><td>{example}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
-          <h2 className="text-2xl font-bold text-white">Upgrade flow</h2>
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <div id="checkout-pro" className="rounded-2xl border border-cyan-400/30 bg-cyan-500/10 p-5">
-              <p className="text-lg font-bold text-white">Pro plan checkout</p>
-              <p className="mt-2 text-sm text-slate-200">Use <code className="text-white">POST /api/billing/checkout</code> with <code className="text-white">{"{"}"plan":"pro"{"}"}</code>.</p>
-            </div>
-            <div id="checkout-business" className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p className="text-lg font-bold text-white">Business plan checkout</p>
-              <p className="mt-2 text-sm text-slate-200">Use <code className="text-white">POST /api/billing/checkout</code> with <code className="text-white">{"{"}"plan":"business"{"}"}</code>.</p>
+            <h2 className="text-2xl font-bold text-white">Error codes</h2>
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-white/10 bg-black/20 p-4">
+              <table className="w-full text-left text-sm text-slate-300">
+                <thead className="text-slate-400">
+                  <tr><th className="pb-3 pr-4">Code</th><th className="pb-3 pr-4">Meaning</th><th className="pb-3">Example</th></tr>
+                </thead>
+                <tbody>
+                  {[
+                    ["400", "Bad Request", "Missing url, invalid JSON, invalid plan"],
+                    ["401", "Unauthorized", "Webhook or ops endpoint missing secret"],
+                    ["422", "Unprocessable", "Non-HTML content type"],
+                    ["429", "Rate Limited", "Too many requests in current window"],
+                    ["502", "Bad Gateway", "Target URL unreachable"],
+                    ["503", "Unavailable", "Checkout or webhook config missing"],
+                    ["504", "Timeout", "Target took too long to respond"],
+                  ].map(([code, meaning, example]) => (
+                    <tr key={code} className="border-t border-white/10"><td className="py-3 pr-4 font-mono">{code}</td><td className="pr-4">{meaning}</td><td>{example}</td></tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </section>

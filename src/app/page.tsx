@@ -1,48 +1,40 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { CheckoutCta } from "@/components/checkout-cta";
 import { formatPlanPrice, getPlanEntries } from "@/lib/plans";
-
-type CheckoutState =
-  | { status: "idle" }
-  | { status: "loading"; plan: string }
-  | {
-      status: "ready" | "manual" | "needs-config" | "error";
-      plan?: string;
-      title: string;
-      detail: string;
-      checkoutUrl?: string;
-      nextStep?: string;
-    };
 
 const sampleResponse = {
   title: "Acme Cloud",
   description: "Cloud infrastructure for fast-moving engineering teams.",
   techStack: ["Next.js", "Vercel", "Cloudflare"],
-  headings: ["Ship faster", "Scale without ops drag"],
   useCase: "Lead enrichment + agent context",
 };
 
-const exampleWorkflows = [
+const proofPoints = [
   {
-    title: "Lead enrichment",
-    copy: "Pull company metadata, tech stack, and clean content before outreach or CRM enrichment.",
+    title: "Lead enrichment before outreach",
+    summary: "Pull a company homepage into JSON, grab the title/description/links, and detect their stack before a rep or agent writes the first message.",
+    snippet: `curl -X POST https://websnap-api.vercel.app/api/snap \\
+  -H "Content-Type: application/json" \\
+  -H "x-api-key: your_key_here" \\
+  -d '{"url":"https://stripe.com"}'`,
   },
   {
-    title: "Agent ingestion",
-    copy: "Turn docs, blog posts, and landing pages into structured context for LLM workflows.",
+    title: "Docs ingestion for AI agents",
+    summary: "Turn public docs pages into clean content blocks and metadata for retrieval, context windows, or background research jobs.",
+    snippet: `{
+  "url": "https://nextjs.org/docs",
+  "options": { "includeContent": true, "includeTechStack": false }
+}`,
   },
   {
-    title: "SEO + metadata ops",
-    copy: "Collect titles, descriptions, canonicals, links, and content blocks in one request.",
+    title: "SEO and metadata QA",
+    summary: "Check OG tags, Twitter card, canonical, links, and images in one response instead of juggling crawlers and scrapers.",
+    snippet: `response.ogTags.title
+response.twitterCard.card
+response.links.length`,
   },
-];
-
-const proofCards = [
-  ["One call", "Send a URL, get structured JSON back."],
-  ["Built for pipelines", "Works for agents, cron jobs, webhooks, and internal tools."],
-  ["Clear upgrade path", "Free tier for testing, paid plans for production usage."],
-  ["Fast operator visibility", "Pricing, checkout readiness, and ops status are all already wired."],
 ];
 
 export default function Home() {
@@ -50,8 +42,6 @@ export default function Home() {
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [billingEmail, setBillingEmail] = useState("");
-  const [checkoutState, setCheckoutState] = useState<CheckoutState>({ status: "idle" });
   const plans = useMemo(() => getPlanEntries(), []);
 
   async function handleSnap() {
@@ -78,77 +68,11 @@ export default function Home() {
     }
   }
 
-  async function handleCheckout(plan: "pro" | "business") {
-    setCheckoutState({ status: "loading", plan });
-
-    try {
-      const res = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plan,
-          email: billingEmail.trim() || undefined,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.checkoutUrl) {
-        setCheckoutState({
-          status: "ready",
-          plan,
-          title: `${plan === "pro" ? "Pro" : "Business"} checkout is ready`,
-          detail: "Redirecting to the hosted checkout flow now.",
-          checkoutUrl: data.checkoutUrl,
-        });
-        window.location.href = data.checkoutUrl;
-        return;
-      }
-
-      if (data.mode === "manual-fallback") {
-        setCheckoutState({
-          status: "manual",
-          plan,
-          title: `${plan === "pro" ? "Pro" : "Business"} is in manual fallback mode`,
-          detail:
-            "Live hosted checkout is not configured in this deployment yet, but the plan mapping and provisioning path are ready.",
-          nextStep: data.nextStep,
-        });
-        return;
-      }
-
-      if (data.mode === "stripe-price-configured") {
-        setCheckoutState({
-          status: "needs-config",
-          plan,
-          title: `${plan === "pro" ? "Pro" : "Business"} needs final Stripe session wiring`,
-          detail:
-            "A Stripe price is configured, but hosted checkout session creation is not enabled in this deployment yet.",
-        });
-        return;
-      }
-
-      setCheckoutState({
-        status: "error",
-        plan,
-        title: "Checkout request failed",
-        detail: data.error || `HTTP ${res.status}`,
-      });
-    } catch (e) {
-      setCheckoutState({
-        status: "error",
-        plan,
-        title: "Checkout request failed",
-        detail: e instanceof Error ? e.message : "Unknown error",
-      });
-    }
-  }
-
   return (
     <main className="min-h-screen bg-gray-950 px-6 py-8 text-gray-100">
       <div className="mx-auto max-w-7xl space-y-10">
         <section className="overflow-hidden rounded-3xl border border-cyan-500/20 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.20),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.14),_transparent_20%),linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))] p-8 shadow-2xl shadow-cyan-950/30">
-          <div className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">URL → structured JSON</p>
               <h1 className="mt-3 text-5xl font-black tracking-tight text-white md:text-6xl">WebSnap API</h1>
@@ -162,57 +86,51 @@ export default function Home() {
                   "Titles, OG tags, content, links, images, tech stack",
                   "Free tier + direct paid upgrade path",
                 ].map((item) => (
-                  <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2">
-                    {item}
-                  </span>
+                  <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2">{item}</span>
                 ))}
               </div>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a href="#pricing" className="rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-gray-950 transition hover:bg-cyan-300">
-                  See pricing
-                </a>
-                <a href="#checkout" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">
-                  Get API access
-                </a>
-                <a href="/docs" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">
-                  Read docs
-                </a>
-                <a href="https://github.com/Splaticusamz/websnap-api" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">
-                  GitHub
-                </a>
+                <a href="#try-it" className="rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-gray-950 transition hover:bg-cyan-300">Try it now</a>
+                <a href="#pricing" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">See pricing</a>
+                <a href="/docs" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">Read docs</a>
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                {[
+                  ["5 minutes", "Typical time from first curl to working JSON output"],
+                  ["1 endpoint", "Enough to test the product without a SaaS maze"],
+                  ["3 tiers", "Start free, then upgrade when the workflow sticks"],
+                ].map(([metric, label]) => (
+                  <div key={metric} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <p className="text-2xl font-black text-white">{metric}</p>
+                    <p className="mt-1 text-sm text-slate-400">{label}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-black/25 p-6 backdrop-blur">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-300">Example output</p>
-                <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-                  Great for first-call demos
-                </span>
+                <a href="/dashboard" className="text-xs text-cyan-300 hover:text-cyan-200">Operator view →</a>
               </div>
               <pre className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-sm leading-6 text-emerald-300">{JSON.stringify(sampleResponse, null, 2)}</pre>
               <div className="mt-5 grid gap-3 text-sm text-slate-300">
-                {exampleWorkflows.map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="font-semibold text-white">{item.title}</p>
-                    <p className="mt-1">{item.copy}</p>
-                  </div>
-                ))}
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">AI agent builders use it for page-to-context ingestion.</div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">Outbound teams use it for company-site enrichment before outreach.</div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">Automation builders use it inside scheduled jobs and webhooks.</div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+        <section id="try-it" className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-bold text-white">Try the API</h2>
                 <p className="mt-1 text-sm text-slate-400">Paste any public URL and see the shape of the response.</p>
               </div>
-              <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-                Free tier available
-              </span>
+              <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">Free tier available</span>
             </div>
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <input
@@ -239,10 +157,10 @@ export default function Home() {
             <h2 className="text-2xl font-bold text-white">The fast onboarding path</h2>
             <div className="mt-5 grid gap-3">
               {[
-                ["1", "Run one snap request against a public URL"],
-                ["2", "Verify the output shape fits your workflow"],
-                ["3", "Choose Free, Pro, or Business based on volume"],
-                ["4", "Move into production with checkout + key provisioning"],
+                ["1", "Paste a URL or send POST /api/snap"],
+                ["2", "Inspect the JSON and confirm it fits your workflow"],
+                ["3", "Use the docs examples for AI agents, enrichment, or SEO QA"],
+                ["4", "Upgrade with one click when you need more volume"],
               ].map(([step, text]) => (
                 <div key={step} className="flex gap-4 rounded-2xl border border-white/10 bg-black/20 p-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400 font-bold text-gray-950">{step}</div>
@@ -258,12 +176,36 @@ export default function Home() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {proofCards.map(([label, value]) => (
+          {[
+            ["Best for", "AI agents, enrichment, SEO, automations"],
+            ["Core value", "HTML page in → structured JSON out"],
+            ["Differentiator", "Tech stack detection + clean content extraction"],
+            ["Automation-ready", "Designed for scheduled jobs, webhooks, and pipelines"],
+          ].map(([label, value]) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
               <p className="text-sm text-slate-400">{label}</p>
               <p className="mt-2 text-lg font-semibold text-white">{value}</p>
             </div>
           ))}
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Proof-of-value examples</h2>
+              <p className="text-sm text-slate-400">Three practical workflows buyers can recognize immediately.</p>
+            </div>
+            <a href="/docs#examples" className="text-sm font-medium text-cyan-300 hover:text-cyan-200">More examples →</a>
+          </div>
+          <div className="mt-5 grid gap-4 xl:grid-cols-3">
+            {proofPoints.map((item) => (
+              <div key={item.title} className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <h3 className="font-semibold text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{item.summary}</p>
+                <pre className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-xs leading-6 text-cyan-100">{item.snippet}</pre>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
@@ -317,107 +259,33 @@ export default function Home() {
           </div>
           <div className="mt-6 grid gap-4 lg:grid-cols-3">
             {plans.map((plan) => {
-              const isPaid = plan.key !== "free";
               const highlight = plan.key === "pro";
               return (
                 <div key={plan.key} className={`rounded-3xl border p-6 ${highlight ? "border-cyan-400/40 bg-cyan-500/10" : "border-white/10 bg-black/20"}`}>
                   <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">{plan.name}</p>
                   <div className="mt-3 text-4xl font-black text-white">{formatPlanPrice(plan.key)}</div>
-                  <p className="mt-2 text-sm text-slate-300">
-                    {plan.monthlyRequests.toLocaleString()} requests/month · {plan.burstPerMinute}/min burst
-                  </p>
+                  <p className="mt-2 text-sm text-slate-300">{plan.monthlyRequests.toLocaleString()} requests/month · {plan.burstPerMinute}/min burst</p>
                   <ul className="mt-5 space-y-2 text-sm text-slate-200">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex gap-2"><span className="text-emerald-300">✓</span><span>{feature}</span></li>
                     ))}
                   </ul>
-                  {isPaid ? (
-                    <button
-                      onClick={() => handleCheckout(plan.key === "pro" ? "pro" : "business")}
-                      disabled={checkoutState.status === "loading"}
-                      className={`mt-6 inline-flex rounded-xl px-4 py-3 font-semibold transition ${highlight ? "bg-cyan-400 text-gray-950 hover:bg-cyan-300" : "border border-white/10 bg-white/5 text-white hover:bg-white/10"}`}
-                    >
-                      {checkoutState.status === "loading" && checkoutState.plan === plan.key ? "Checking checkout..." : plan.cta}
-                    </button>
-                  ) : (
-                    <a href="/docs" className="mt-6 inline-flex rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white transition hover:bg-white/10">
-                      {plan.cta}
-                    </a>
-                  )}
+                  <div className="mt-6">
+                    {plan.key === "free" ? (
+                      <a href="#try-it" className="inline-flex rounded-xl border border-white/10 bg-white/5 px-4 py-3 font-semibold text-white transition hover:bg-white/10">
+                        {plan.cta}
+                      </a>
+                    ) : (
+                      <CheckoutCta
+                        plan={plan.key}
+                        label={plan.cta}
+                        className={`inline-flex rounded-xl px-4 py-3 font-semibold transition ${highlight ? "bg-cyan-400 text-gray-950 hover:bg-cyan-300" : "border border-white/10 bg-white/5 text-white hover:bg-white/10"}`}
+                      />
+                    )}
+                  </div>
                 </div>
               );
             })}
-          </div>
-        </section>
-
-        <section id="checkout" className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-cyan-300">Checkout + provisioning</p>
-              <h2 className="mt-3 text-2xl font-bold text-white">Move from test traffic to production usage</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-300">
-                Use the free tier to validate your workflow, then switch to a paid plan for higher monthly volume and faster burst limits.
-                If hosted checkout is configured, the button redirects immediately. If not, the page tells you exactly what remains.
-              </p>
-              <label className="mt-5 block text-sm text-slate-300">
-                Billing / contact email (optional)
-                <input
-                  type="email"
-                  value={billingEmail}
-                  onChange={(e) => setBillingEmail(e.target.value)}
-                  placeholder="you@company.com"
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
-                />
-              </label>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <button onClick={() => handleCheckout("pro")} className="rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-gray-950 transition hover:bg-cyan-300">
-                  Start Pro
-                </button>
-                <button onClick={() => handleCheckout("business")} className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">
-                  Start Business
-                </button>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-black/20 p-5">
-              <h3 className="text-lg font-semibold text-white">Current checkout status</h3>
-              {checkoutState.status === "idle" && (
-                <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
-                  Pick a paid plan to test the current checkout path. The response will either redirect to hosted checkout or explain the fallback state.
-                </div>
-              )}
-              {checkoutState.status === "loading" && (
-                <div className="mt-4 rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-4 text-sm text-cyan-100">
-                  <p className="font-semibold text-white">Checking {checkoutState.plan} checkout</p>
-                  <p className="mt-2">Resolving the current billing path for this plan.</p>
-                </div>
-              )}
-              {checkoutState.status !== "idle" && checkoutState.status !== "loading" && (
-                <div className={`mt-4 rounded-2xl border p-4 text-sm ${checkoutState.status === "error" ? "border-rose-500/20 bg-rose-500/10 text-rose-200" : checkoutState.status === "ready" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-100" : "border-amber-500/20 bg-amber-500/10 text-amber-100"}`}>
-                  <p className="font-semibold text-white">{checkoutState.title}</p>
-                  <p className="mt-2">{checkoutState.detail}</p>
-                  {checkoutState.nextStep && <p className="mt-2 text-xs uppercase tracking-[0.18em] text-white/70">Next step: {checkoutState.nextStep}</p>}
-                  {checkoutState.checkoutUrl && (
-                    <a href={checkoutState.checkoutUrl} className="mt-4 inline-flex rounded-xl bg-white px-4 py-2 font-semibold text-gray-950">
-                      Open checkout manually
-                    </a>
-                  )}
-                </div>
-              )}
-              <div className="mt-4 grid gap-3 text-sm text-slate-300 md:grid-cols-2">
-                {[
-                  ["Free", "Use docs + test workflow without a long setup"],
-                  ["Pro", "For working agent or automation flows that need real monthly volume"],
-                  ["Business", "For heavier internal tools, commercial workflows, or batch-style usage"],
-                  ["Ops", "Pricing, webhook, and checkout readiness already map to plan tiers"],
-                ].map(([title, desc]) => (
-                  <div key={title} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="font-semibold text-white">{title}</p>
-                    <p className="mt-1">{desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
       </div>
