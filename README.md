@@ -1,58 +1,72 @@
 # WebSnap API
 
-URL → structured JSON in one API call.
+Turn any public webpage into structured JSON in one API call.
 
-WebSnap API extracts titles, descriptions, Open Graph tags, Twitter cards, links, images, content, and detected tech stack from public webpages. It is positioned as a lightweight API product for AI agents, workflow builders, lead-enrichment tools, and internal automation.
+WebSnap API extracts titles, descriptions, Open Graph tags, Twitter cards, links, images, cleaned main content, and detected tech stack from public webpages. It is built for AI agents, workflow automation, lead enrichment, SEO tooling, and internal developer systems.
 
-## Status
+## Current Status
 
-- Project: live and deployed
-- Framework: Next.js 14 + TypeScript
-- Deployment target: Vercel
-- Source control: Git + GitHub
-- Current phase: infrastructure / packaging / monetization prep
+- Live on Vercel
+- Core extraction API shipped
+- Pricing and packaging in place
+- Checkout + webhook + cron automation scaffolding added
+- Ready for direct docs-led distribution and RapidAPI submission prep
 
-## Architecture
+## Why this product
+
+The simplest useful API products win when they remove annoying glue work.
+
+WebSnap API does that by turning:
 
 ```text
-Client
-  -> POST /api/snap
-  -> Next.js route handler
-  -> fetch target URL
-  -> Cheerio parse + extraction
-  -> structured JSON response
+URL -> HTML page -> structured JSON -> agent/tooling workflow
 ```
 
-Core pieces:
-- `src/app/api/snap/route.ts` — API entrypoint
-- `src/app/api/health/route.ts` — health endpoint
-- `src/lib/auth.ts` — API key lookup
-- `src/lib/rate-limit.ts` — in-memory rate limiting
-- `src/lib/content-extract.ts` — main content extraction
-- `src/lib/tech-detect.ts` — technology detection heuristics
-
-## Revenue Model
-
-### Target buyers
+That makes it a strong fit for:
 - AI agent builders
-- workflow automation developers
-- lead-enrichment/data-enrichment tools
-- internal tools teams turning webpages into JSON
+- automation developers
+- outbound / enrichment workflows
+- metadata and content ingestion pipelines
+- internal research tools
 
-### Planned tiers
-- **Free** — 100 requests/day, public docs, basic use
-- **Pro** — $19/mo, 10,000 requests/month, higher limits
-- **Business** — $79/mo, 100,000 requests/month, priority support/commercial use
+## Main Endpoints
 
-### Distribution paths
-- Direct docs-led acquisition
-- Hosted checkout via Stripe
-- Marketplace listing via RapidAPI
+- `POST /api/snap` — extract structured JSON from a public webpage
+- `GET /api/health` — health status
+- `POST /api/billing/checkout` — resolve the current checkout path for a paid plan
+- `POST /api/billing/webhook` — receive billing automation events
+- `GET /api/ops/status` — internal ops / cron automation snapshot
 
-See also:
+## Pricing
+
+- **Free** — $0 — 100 requests/day
+- **Pro** — $19/mo — 10,000 requests/month
+- **Business** — $79/mo — 100,000 requests/month
+
+See:
+- `docs/API.md`
 - `docs/PRICING.md`
 - `docs/BILLING_SETUP.md`
 - `docs/RAPIDAPI-LISTING.md`
+
+## Automation-First Stack
+
+This repo now includes automation-friendly infrastructure:
+
+- explicit plan constants in code
+- checkout endpoint for paid plan flow
+- webhook receiver for provisioning events
+- Vercel cron config for scheduled ops checks
+- ops status endpoint for internal monitoring
+- env-based API key loading for automated provisioning paths
+
+## Tech Stack
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Cheerio
+- Vercel
 
 ## Repository Structure
 
@@ -60,6 +74,7 @@ See also:
 .
 ├── CHANGELOG.md
 ├── README.md
+├── vercel.json
 ├── docs/
 │   ├── API.md
 │   ├── ARCHITECTURE.md
@@ -81,7 +96,7 @@ npm install
 npm run dev
 ```
 
-App will start on `http://localhost:3000`.
+Open `http://localhost:3000`.
 
 ## Build
 
@@ -89,41 +104,38 @@ App will start on `http://localhost:3000`.
 npm run build
 ```
 
-## Deployment
-
-This repo is already linked to Vercel.
-
-Typical flow:
-1. Push to `main`
-2. Vercel builds automatically
-3. Production deploy updates
-
-Deployment notes live in `docs/DEPLOYMENT.md`.
-
 ## Environment Configuration
 
-Copy `.env.example` to `.env.local` for local work.
+Copy `.env.example` to `.env.local`.
 
-Current env scaffolding covers:
-- API service metadata
-- rate-limit configuration placeholders
-- Stripe placeholders
-- RapidAPI placeholders
-- Vercel app URL
+Important variables include:
+- `NEXT_PUBLIC_APP_URL`
+- `API_KEYS_JSON`
+- `WEBSNAP_OPS_TOKEN`
+- `NEXT_PUBLIC_STRIPE_PRO_CHECKOUT_LINK`
+- `NEXT_PUBLIC_STRIPE_BUSINESS_CHECKOUT_LINK`
+- `STRIPE_WEBHOOK_SECRET`
+
+## Deploy Flow
+
+1. Push to `main`
+2. Vercel deploys automatically
+3. Hourly/daily cron routes can hit `/api/ops/status`
+4. Billing automation can call `/api/billing/webhook`
 
 ## Current Constraints
 
-- Rate limiting is currently in-memory, not persistent
-- Billing automation is not yet enforced end-to-end
-- API key provisioning is still partially manual
-- Marketplace distribution is prepared but not yet submitted
+- rate limiting and usage counters are in-memory for now
+- paid provisioning still depends on real Stripe/live account config
+- no persistent database yet for usage or customers
+- bot-protected targets may need future browser fallback
 
-## Near-Term Infrastructure Goals
+## Near-Term Next Moves
 
-- keep docs and pricing consistent
-- preserve Vercel-ready deploy path
-- prepare Stripe and RapidAPI config without overbuilding
-- maintain professional repo structure before feature expansion
+- wire live Stripe checkout URLs / webhook forwarding
+- submit RapidAPI listing
+- add persistence for usage and customer records
+- capture first paid conversions and tune copy from real usage
 
 ## License
 

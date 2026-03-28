@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.3] - 2026-03-28
+
+### Added
+- automation-first plan definitions in `src/lib/plans.ts`
+- billing helpers in `src/lib/billing.ts`
+- `POST /api/billing/checkout`
+- `POST /api/billing/webhook`
+- `GET /api/ops/status`
+- Vercel cron config in `vercel.json`
+- billing success/cancel pages
+- env-based API key loading via `API_KEYS_JSON`
+
+### Changed
+- rebuilt landing page around conversion, use cases, and paid upgrade path
+- rebuilt docs page around onboarding, automation, and billing flow
+- updated private ops dashboard dev status to reflect current automation work
+- expanded CORS headers for ops and webhook flows
+- standardized plan/rate-limit logic around explicit code-level plan definitions
+
 ## [0.1.2] - 2026-03-28
 
 ### Added

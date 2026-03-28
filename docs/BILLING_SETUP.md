@@ -2,54 +2,74 @@
 
 ## Goal
 
-Keep billing simple. Do not overbuild before demand exists.
+Make buying possible fast, while keeping the path ready for real automation.
 
-## Recommended Phase-Appropriate Setup
+## Current Billing Stack
 
-### Phase 1
-- Hosted Stripe checkout links for Pro and Business
-- Manual or semi-manual API key issuance after payment
-- Clear docs for how plan mapping works
+This repo now includes:
+- pricing and plan constants in code
+- `POST /api/billing/checkout`
+- `POST /api/billing/webhook`
+- success/cancel pages
+- env placeholders for hosted checkout links, price IDs, and webhook secrets
 
-### Phase 2
-- Stripe webhook receives successful subscription events
-- Customer is mapped to a plan
-- API key is provisioned automatically
-- Quotas are attached to that key
+## Recommended Setup
+
+### Fastest path
+- create hosted Stripe checkout/payment links for Pro and Business
+- set:
+  - `NEXT_PUBLIC_STRIPE_PRO_CHECKOUT_LINK`
+  - `NEXT_PUBLIC_STRIPE_BUSINESS_CHECKOUT_LINK`
+- send buyers through `POST /api/billing/checkout`
+- land them on `/billing/success`
+- issue API keys manually or from your provisioning script
+
+### More automated path
+- configure `STRIPE_WEBHOOK_SECRET`
+- forward successful checkout/subscription events to `POST /api/billing/webhook`
+- include plan metadata or use price IDs for tier mapping
+- automate key provisioning from webhook output
 
 ## Required Environment Variables
 
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `NEXT_PUBLIC_STRIPE_PRO_PRICE_ID`
-- `NEXT_PUBLIC_STRIPE_BUSINESS_PRICE_ID`
+### Minimum for direct paid path
+- `NEXT_PUBLIC_STRIPE_PRO_CHECKOUT_LINK`
+- `NEXT_PUBLIC_STRIPE_BUSINESS_CHECKOUT_LINK`
 - `NEXT_PUBLIC_STRIPE_SUCCESS_URL`
 - `NEXT_PUBLIC_STRIPE_CANCEL_URL`
 
+### For webhook automation
+- `STRIPE_WEBHOOK_SECRET` or `WEBSNAP_BILLING_WEBHOOK_SECRET`
+- `NEXT_PUBLIC_STRIPE_PRO_PRICE_ID`
+- `NEXT_PUBLIC_STRIPE_BUSINESS_PRICE_ID`
+
 ## Plan Mapping
 
-- Stripe Pro product/price -> WebSnap `pro`
-- Stripe Business product/price -> WebSnap `business`
+- Stripe Pro link/price -> WebSnap `pro`
+- Stripe Business link/price -> WebSnap `business`
 
-## Checkout Flow
+## Suggested Flow
 
-1. Visitor lands on homepage/docs
-2. Visitor chooses Pro or Business
-3. Hosted Stripe checkout completes
-4. Success page explains provisioning steps
-5. API key is issued manually until automation is implemented
+1. Buyer lands on homepage/docs
+2. Buyer sees example response + pricing
+3. Buyer selects Pro or Business
+4. Frontend or automation calls `POST /api/billing/checkout`
+5. Checkout completes
+6. Stripe (or forwarder) hits `POST /api/billing/webhook`
+7. Provision API key for returned tier
+8. Buyer starts sending `x-api-key`
 
 ## Operational Note
 
-Manual provisioning is acceptable at this stage if:
-- pricing is clear
-- response time to buyers is fast
-- internal mapping from payment to API key tier is documented
+Manual provisioning is still acceptable if:
+- checkout works
+- tier mapping is obvious
+- key issuance is fast
+- docs clearly explain first-call setup
 
-## What not to build yet
+## What not to overbuild yet
 
-- full customer portal SaaS
-- complex usage metering dashboards
-- account systems that delay launch
-
-The current objective is to make payment possible, not to create a full billing platform.
+- full customer portal
+- complex seat/account systems
+- perfect metered billing before real buyers exist
+- deep analytics before live checkout works

@@ -1,4 +1,5 @@
-import { config } from "./config";
+import { getPlan } from "./plans";
+import type { Tier } from "./plans";
 
 interface RateLimitEntry {
   timestamps: number[];
@@ -6,18 +7,15 @@ interface RateLimitEntry {
 
 const store = new Map<string, RateLimitEntry>();
 
-// Clean old entries every 5 minutes
 setInterval(() => {
   const now = Date.now();
   store.forEach((entry, key) => {
-    entry.timestamps = entry.timestamps.filter(
-      (t) => now - t < config.rateLimits.business.windowMs
-    );
+    entry.timestamps = entry.timestamps.filter((t) => now - t < getPlan("business").windowMs);
     if (entry.timestamps.length === 0) store.delete(key);
-  })
+  });
 }, 5 * 60 * 1000);
 
-export type Tier = "free" | "pro" | "business";
+export type { Tier };
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -28,11 +26,11 @@ export interface RateLimitResult {
 }
 
 export function checkRateLimit(key: string, tier: Tier): RateLimitResult {
-  const { requests, windowMs } = config.rateLimits[tier];
+  const plan = getPlan(tier);
+  const { requestsPerWindow: requests, windowMs } = plan;
   const now = Date.now();
   const entry = store.get(key) ?? { timestamps: [] };
 
-  // Remove timestamps outside window
   entry.timestamps = entry.timestamps.filter((t) => now - t < windowMs);
 
   const remaining = Math.max(0, requests - entry.timestamps.length);
@@ -54,6 +52,8 @@ export function checkRateLimit(key: string, tier: Tier): RateLimitResult {
       "X-RateLimit-Limit": String(requests),
       "X-RateLimit-Remaining": String(allowed ? remaining - 1 : 0),
       "X-RateLimit-Reset": String(Math.ceil(resetMs / 1000)),
+      "X-RateLimit-Plan": tier,
+      "X-RateLimit-Window": plan.requestWindowLabel,
     },
   };
 }

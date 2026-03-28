@@ -21,7 +21,7 @@ const phases: { name: string; status: string; color: string; tasks: [string, boo
   },
   {
     name: "Phase 2 · Monetization + packaging",
-    status: "in-progress",
+    status: "done",
     color: "amber",
     tasks: [
       ["Pricing + packaging docs", true],
@@ -29,17 +29,19 @@ const phases: { name: string; status: string; color: string; tasks: [string, boo
       ["RapidAPI listing materials", true],
       ["Private hustle dashboard", true],
       ["Hourly dev tracker", true],
-      ["Polish + redeploy", false],
+      ["Conversion-focused landing + docs", true],
     ],
   },
   {
-    name: "Phase 3 · Revenue activation",
-    status: "planned",
+    name: "Phase 3 · Automation + revenue activation",
+    status: "in-progress",
     color: "blue",
     tasks: [
-      ["Direct Stripe subscriptions", false],
-      ["RapidAPI submission", false],
-      ["Usage persistence", false],
+      ["Checkout automation endpoint", true],
+      ["Billing webhook receiver", true],
+      ["Ops status endpoint", true],
+      ["Vercel cron automation", true],
+      ["Direct Stripe live config", false],
       ["First paid conversions", false],
     ],
   },
@@ -47,9 +49,9 @@ const phases: { name: string; status: string; color: string; tasks: [string, boo
 
 const revenueTimeline = [
   { label: "Mar 27", title: "Build + deploy core API", revenue: "$0", state: "done" },
-  { label: "Mar 28", title: "Packaging + monetization prep", revenue: "$0", state: "active" },
+  { label: "Mar 28", title: "Packaging + monetization prep", revenue: "$0", state: "done" },
+  { label: "Mar 28", title: "Automation layer shipped", revenue: "$0", state: "active" },
   { label: "Mar 30", title: "Marketplace + checkout live", revenue: "$0-19", state: "next" },
-  { label: "Apr 1-7", title: "First free users + feedback", revenue: "$0-39", state: "next" },
   { label: "Apr 8-15", title: "First real paid conversion window", revenue: "$19-98", state: "next" },
   { label: "May", title: "Steady funnel optimization", revenue: "$100-300", state: "later" },
   { label: "Jun", title: "Small but real side-income", revenue: "$300-750", state: "later" },
@@ -85,10 +87,7 @@ function ProgressBar({ value, max, tone = "emerald" }: { value: number; max: num
 
   return (
     <div className="h-3 w-full overflow-hidden rounded-full bg-white/10">
-      <div
-        className={`h-full rounded-full bg-gradient-to-r ${fill[tone] || fill.emerald} transition-all duration-700`}
-        style={{ width: `${pct}%` }}
-      />
+      <div className={`h-full rounded-full bg-gradient-to-r ${fill[tone] || fill.emerald} transition-all duration-700`} style={{ width: `${pct}%` }} />
     </div>
   );
 }
@@ -115,8 +114,8 @@ export default function HustleOpsDashboard() {
   const hourlyBlocks = useMemo(() => {
     const currentHour = now.getUTCHours();
     return [
-      { hour: 0, label: "00:00", task: "Check deploy / health endpoint" },
-      { hour: 4, label: "04:00", task: "Copy + docs polish" },
+      { hour: 0, label: "00:00", task: "Check deploy + cron automation" },
+      { hour: 4, label: "04:00", task: "Billing + docs + ops endpoint pass" },
       { hour: 8, label: "08:00", task: "Distribution assets review" },
       { hour: 12, label: "12:00", task: "Usage + pricing sanity pass" },
       { hour: 16, label: "16:00", task: "Growth opportunities + backlog" },
@@ -128,10 +127,10 @@ export default function HustleOpsDashboard() {
   }, [now]);
 
   const projectedBars = [
-    { label: "Shipping speed", value: 82, tone: "emerald" },
-    { label: "Monetization readiness", value: 68, tone: "amber" },
-    { label: "Distribution readiness", value: 61, tone: "blue" },
-    { label: "Revenue confidence", value: 54, tone: "violet" },
+    { label: "Shipping speed", value: 88, tone: "emerald" },
+    { label: "Monetization readiness", value: 79, tone: "amber" },
+    { label: "Distribution readiness", value: 68, tone: "blue" },
+    { label: "Revenue confidence", value: 59, tone: "violet" },
   ];
 
   return (
@@ -144,15 +143,15 @@ export default function HustleOpsDashboard() {
               <div>
                 <h1 className="text-3xl font-black tracking-tight text-white md:text-5xl">WebSnap API · Night Hustle Dashboard</h1>
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300 md:text-base">
-                  Internal operator board for the current hustle. Tracks the system loop, shipping velocity, expected revenue window,
-                  and the monetization path from deployed API to paid usage.
+                  Internal operator board for the current hustle. Tracks shipping velocity, automation readiness, monetization
+                  infrastructure, and the path from deployed API to paid usage.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Badge tone="emerald">🟢 Vercel live</Badge>
                 <Badge tone="emerald">✅ Core API shipped</Badge>
-                <Badge tone="amber">🟠 Monetization in progress</Badge>
-                <Badge tone="blue">📈 Profit target: mid-April</Badge>
+                <Badge tone="amber">💳 Billing scaffolding live</Badge>
+                <Badge tone="blue">⏰ Cron + webhook automation added</Badge>
               </div>
             </div>
 
@@ -160,7 +159,7 @@ export default function HustleOpsDashboard() {
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Current status</p>
                 <p className="mt-2 text-2xl font-bold text-emerald-300">{overallPct}% complete</p>
-                <p className="mt-1 text-sm text-slate-400">Phase 2 packaging sprint</p>
+                <p className="mt-1 text-sm text-slate-400">Automation + packaging sprint</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Updated</p>
@@ -204,7 +203,7 @@ export default function HustleOpsDashboard() {
               <Badge tone="blue">visual systems view</Badge>
             </div>
             <div className="grid gap-4 lg:grid-cols-2">
-              <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#030712] p-4 text-[12px] leading-5 text-cyan-100">{`mermaid\nflowchart LR\n  A[Traffic: docs / GitHub / RapidAPI] --> B[Landing page]\n  B --> C[Copy curl snippet]\n  C --> D[POST /api/snap]\n  D --> E[Structured JSON response]\n  E --> F[Useful automation outcome]\n  F --> G[Upgrade to paid plan]\n  G --> H[Recurring revenue]\n`}</pre>
+              <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#030712] p-4 text-[12px] leading-5 text-cyan-100">{`mermaid\nflowchart LR\n  A[Traffic: docs / GitHub / RapidAPI] --> B[Landing page]\n  B --> C[Copy curl snippet]\n  C --> D[POST /api/snap]\n  D --> E[Structured JSON response]\n  E --> F[Useful automation outcome]\n  F --> G[Upgrade to paid plan]\n  G --> H[Checkout endpoint]\n  H --> I[Webhook / provisioning]\n  I --> J[Recurring revenue]\n`}</pre>
               <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#030712] p-4 text-[12px] leading-5 text-slate-200">{`┌──────────────┐    ┌───────────────┐    ┌────────────────┐
 │ Traffic in   │ -> │ Docs + landing│ -> │ First API call │
 └──────┬───────┘    └──────┬────────┘    └──────┬─────────┘
@@ -213,7 +212,7 @@ export default function HustleOpsDashboard() {
        │          Example response         Useful result
        │                   │                     │
        ▼                   ▼                     ▼
-  RapidAPI / SEO      Clear pricing         Conversion trigger
+  RapidAPI / SEO      Clear pricing       Checkout + webhook
        \____________________  ___________________/
                             \/
                      recurring monthly revenue
@@ -231,7 +230,10 @@ export default function HustleOpsDashboard() {
 └───┬────┘          └────┬────┘          └────┬──────┘
     │                    │                    │
     │                    ▼                    ▼
-    │              health check         dashboard / docs
+    │              hourly cron          docs / dashboard
+    │                    │                    │
+    │                    ▼                    ▼
+    │              ops status route     checkout + webhook
     │                    │                    │
     └────────────── feedback + next sprint ◄──┘
 `}</pre>
@@ -240,7 +242,7 @@ export default function HustleOpsDashboard() {
                 ["Source of truth", "GitHub main"],
                 ["Deploy target", "Vercel production"],
                 ["Primary CTA", "Try API / get key"],
-                ["Next automation", "Stripe + RapidAPI"],
+                ["Automation live", "cron + checkout + webhook"],
               ].map(([label, value]) => (
                 <div key={label} className="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm">
                   <span className="text-slate-400">{label}</span>
@@ -297,7 +299,7 @@ export default function HustleOpsDashboard() {
                 ["Free tier", "100 req/day"],
                 ["Pro plan", "$19/mo"],
                 ["Business plan", "$79/mo"],
-                ["Infra posture", "Lean / low-cost"],
+                ["Cron checks", "Hourly + daily"],
                 ["Main risk", "Traffic without conversion"],
                 ["Main upside", "Agent-friendly API niche"],
               ].map(([label, value]) => (

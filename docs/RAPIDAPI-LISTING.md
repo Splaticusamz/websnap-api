@@ -8,6 +8,10 @@ WebSnap API
 
 Turn any public webpage into structured JSON in one API call.
 
+## Positioning
+
+Built for AI agents, enrichment pipelines, automation developers, and internal tools that need fast HTML extraction without running a headless browser stack.
+
 ## Category Ideas
 
 - Data
@@ -24,8 +28,8 @@ web scraping, metadata, content extraction, open graph, tech stack detection, le
 - Extract title, description, OG tags, Twitter cards, and favicon
 - Pull links, images, and cleaned main content
 - Detect technologies such as Next.js, React, WordPress, Shopify, Cloudflare, and more
-- Return structured JSON suitable for agents and pipelines
-- Lightweight API-first workflow with fast setup
+- Return structured JSON suitable for agents, cron jobs, and pipelines
+- Lightweight API-first workflow with fast setup and simple pricing
 
 ## Sample Request
 
@@ -92,9 +96,11 @@ curl -X POST https://websnap-api.vercel.app/api/snap \
 ## Buyer Use Cases
 
 - lead enrichment from company homepages
-- article ingestion for agents
+- article ingestion for AI agents
 - tech stack lookup before outbound outreach
 - metadata extraction for SEO and automation tools
+- scheduled webpage checks in cron-driven workflows
+- webhook-triggered parsing in pipeline automations
 
 ## Assets to Prepare
 
@@ -103,6 +109,7 @@ curl -X POST https://websnap-api.vercel.app/api/snap \
 - docs screenshot
 - example JSON screenshot
 - pricing screenshot
+- ops/automation diagram screenshot (optional)
 
 ## Caveats to Mention Clearly
 

@@ -1,12 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { formatPlanPrice, getPlanEntries } from "@/lib/plans";
+
+const sampleResponse = {
+  title: "Acme Cloud",
+  description: "Cloud infrastructure for fast-moving engineering teams.",
+  techStack: ["Next.js", "Vercel", "Cloudflare"],
+  useCase: "Lead enrichment + agent context",
+};
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const plans = useMemo(() => getPlanEntries(), []);
 
   async function handleSnap() {
     if (!url) return;
@@ -17,7 +26,10 @@ export default function Home() {
       const res = await fetch("/api/snap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({
+          url,
+          options: { includeContent: true, includeTechStack: true, includePerformance: true },
+        }),
       });
       const data = await res.json();
       if (!res.ok) setError(data.error || `HTTP ${res.status}`);
@@ -30,122 +42,182 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center p-8">
-      <div className="max-w-4xl w-full space-y-12">
-        {/* Hero */}
-        <div className="text-center space-y-4 pt-12">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-            WebSnap API
-          </h1>
-          <p className="text-xl text-gray-400">
-            URL → Structured JSON in one call.
-          </p>
-          <p className="text-gray-500 max-w-xl mx-auto">
-            Extract titles, meta tags, OG data, content, links, images, and tech stack from any URL.
-            Built for AI agents and developers.
-          </p>
-        </div>
-
-        {/* Try It */}
-        <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h2 className="text-xl font-bold mb-4">🔍 Try It</h2>
-          <div className="flex gap-2">
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSnap()}
-              placeholder="https://example.com"
-              className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-            />
-            <button
-              onClick={handleSnap}
-              disabled={loading || !url}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg font-medium transition whitespace-nowrap"
-            >
-              {loading ? "Snapping..." : "Snap →"}
-            </button>
-          </div>
-          {error && (
-            <div className="mt-4 p-3 bg-red-900/30 border border-red-800 rounded-lg text-red-400 text-sm">
-              {error}
+    <main className="min-h-screen bg-gray-950 px-6 py-8 text-gray-100">
+      <div className="mx-auto max-w-7xl space-y-10">
+        <section className="overflow-hidden rounded-3xl border border-cyan-500/20 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.20),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(16,185,129,0.14),_transparent_20%),linear-gradient(180deg,rgba(15,23,42,0.98),rgba(2,6,23,1))] p-8 shadow-2xl shadow-cyan-950/30">
+          <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">URL → structured JSON</p>
+              <h1 className="mt-3 text-5xl font-black tracking-tight text-white md:text-6xl">WebSnap API</h1>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-200">
+                Turn any public webpage into structured JSON in one API call. Built for AI agents, enrichment pipelines,
+                automations, internal tools, and developer workflows that need fast HTML extraction instead of browser automation.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-200">
+                {[
+                  "Fast setup for agents and pipelines",
+                  "Titles, OG tags, content, links, images, tech stack",
+                  "Free tier + direct paid upgrade path",
+                ].map((item) => (
+                  <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2">{item}</span>
+                ))}
+              </div>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <a href="#pricing" className="rounded-xl bg-cyan-400 px-5 py-3 font-semibold text-gray-950 transition hover:bg-cyan-300">See pricing</a>
+                <a href="/docs" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">Read docs</a>
+                <a href="https://github.com/Splaticusamz/websnap-api" className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-white transition hover:bg-white/10">GitHub</a>
+              </div>
             </div>
-          )}
-          {result && (
-            <pre className="mt-4 p-4 bg-gray-950 rounded-lg text-sm text-emerald-400 overflow-x-auto max-h-96 overflow-y-auto">
-              {result}
-            </pre>
-          )}
+
+            <div className="rounded-3xl border border-white/10 bg-black/25 p-6 backdrop-blur">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-300">Example output</p>
+              <pre className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-sm leading-6 text-emerald-300">{JSON.stringify(sampleResponse, null, 2)}</pre>
+              <div className="mt-5 grid gap-3 text-sm text-slate-300">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">AI agent builders use it for page-to-context ingestion.</div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">Outbound teams use it for company-site enrichment before outreach.</div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">Automation builders use it inside scheduled jobs and webhooks.</div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        {/* Quick Example */}
-        <section className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-          <h2 className="text-xl font-bold mb-4">⚡ Quick Start</h2>
-          <pre className="p-4 bg-gray-950 rounded-lg text-sm overflow-x-auto">
-            <code className="text-gray-300">{`curl -X POST https://websnap-api.vercel.app/api/snap \\
+        <section className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white">Try the API</h2>
+                <p className="mt-1 text-sm text-slate-400">Paste any public URL and see the shape of the response.</p>
+              </div>
+              <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">Free tier available</span>
+            </div>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSnap()}
+                placeholder="https://example.com"
+                className="flex-1 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+              />
+              <button
+                onClick={handleSnap}
+                disabled={loading || !url}
+                className="rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-gray-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+              >
+                {loading ? "Snapping..." : "Run snap"}
+              </button>
+            </div>
+            {error && <div className="mt-4 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-300">{error}</div>}
+            {result && <pre className="mt-4 max-h-[420px] overflow-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-sm text-emerald-300">{result}</pre>}
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+            <h2 className="text-2xl font-bold text-white">The fast onboarding path</h2>
+            <div className="mt-5 grid gap-3">
+              {[
+                ["1", "Send a URL to POST /api/snap"],
+                ["2", "Inspect the structured response"],
+                ["3", "Choose a tier when the workflow sticks"],
+                ["4", "Upgrade via checkout + provisioning flow"],
+              ].map(([step, text]) => (
+                <div key={step} className="flex gap-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-400 font-bold text-gray-950">{step}</div>
+                  <p className="pt-2 text-slate-200">{text}</p>
+                </div>
+              ))}
+            </div>
+            <pre className="mt-5 overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-sm text-slate-200"><code>{`curl -X POST https://websnap-api.vercel.app/api/snap \\
   -H "Content-Type: application/json" \\
-  -d '{"url": "https://example.com"}'`}</code>
-          </pre>
+  -H "x-api-key: your_key_here" \\
+  -d '{"url":"https://example.com"}'`}</code></pre>
+          </div>
         </section>
 
-        {/* What You Get */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-center">What You Get</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            ["Best for", "AI agents, enrichment, SEO, automations"],
+            ["Core value", "HTML page in → structured JSON out"],
+            ["Differentiator", "Tech stack detection + clean content extraction"],
+            ["Automation-ready", "Designed for scheduled jobs, webhooks, and pipelines"],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+              <p className="text-sm text-slate-400">{label}</p>
+              <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">What you get back</h2>
+              <p className="text-sm text-slate-400">Useful fields for product, automation, and research workflows.</p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {[
-              { icon: "📄", title: "Meta & OG Tags", desc: "Title, description, Open Graph, Twitter Cards, favicon, canonical URL" },
-              { icon: "📝", title: "Content Extract", desc: "Clean main content text with noise removal — scripts, nav, ads stripped" },
-              { icon: "🔗", title: "Links & Images", desc: "All links (internal/external flagged) and images with alt text" },
-              { icon: "⚙️", title: "Tech Stack", desc: "Detect 30+ technologies: frameworks, CMS, analytics, CDN, servers" },
-              { icon: "⏱️", title: "Performance", desc: "Fetch time, content size, HTTP status — monitor any site" },
-              { icon: "🔒", title: "Auth & Rate Limits", desc: "API key authentication with tiered rate limits" },
-            ].map((f) => (
-              <div key={f.title} className="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                <div className="text-2xl mb-2">{f.icon}</div>
-                <h3 className="font-semibold mb-1">{f.title}</h3>
-                <p className="text-gray-500 text-sm">{f.desc}</p>
+              ["Meta + OG", "Title, description, Open Graph tags, Twitter cards, favicon, canonical URL"],
+              ["Main content", "Cleaned body text with navigation/script noise removed"],
+              ["Links + images", "Internal/external links, image sources, alt text, dimensions when present"],
+              ["Tech detection", "Frameworks, CMSs, analytics, CDNs, hosting clues"],
+              ["Performance", "Fetch timing, content size, HTTP status"],
+              ["Operational headers", "Rate-limit headers tied to tier and request window"],
+            ].map(([title, desc]) => (
+              <div key={title} className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <h3 className="font-semibold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Pricing */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-center">Pricing</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+          <h2 className="text-2xl font-bold text-white">Use cases that actually pay</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {[
-              { tier: "Free", price: "$0", desc: "100 requests/day", features: ["All extraction features", "Rate limited", "No API key needed"] },
-              { tier: "Pro", price: "$19/mo", desc: "10,000 requests/month", features: ["Priority rate limits", "API key", "Email support"], highlight: true },
-              { tier: "Business", price: "$79/mo", desc: "100,000 requests/month", features: ["Highest rate limits", "Dedicated key", "Priority support"] },
-            ].map((p) => (
-              <div key={p.tier} className={`rounded-xl p-6 border ${p.highlight ? "bg-blue-950/30 border-blue-700" : "bg-gray-900 border-gray-800"}`}>
-                <h3 className="text-lg font-bold">{p.tier}</h3>
-                <div className="text-3xl font-bold mt-2">{p.price}</div>
-                <p className="text-gray-500 text-sm mt-1">{p.desc}</p>
-                <ul className="mt-4 space-y-2">
-                  {p.features.map((f) => (
-                    <li key={f} className="text-sm text-gray-400 flex items-center gap-2">
-                      <span className="text-emerald-400">✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
+              ["Lead enrichment", "Pull company-page metadata and tech stack before outreach."],
+              ["Agent ingestion", "Convert docs pages, blogs, and landing pages into structured context."],
+              ["Automation", "Run scheduled URL checks and webhook-triggered extraction jobs."],
+              ["SEO tooling", "Collect metadata, links, and content blocks for analysis workflows."],
+            ].map(([title, desc]) => (
+              <div key={title} className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <h3 className="font-semibold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Links */}
-        <div className="flex gap-4 justify-center pb-8">
-          <a href="/docs" className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition">
-            Documentation
-          </a>
-          <a href="/docs" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition">
-            API Docs
-          </a>
-          <a href="https://github.com/Splaticusamz/websnap-api" className="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition">
-            GitHub
-          </a>
-        </div>
+        <section id="pricing" className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Simple pricing</h2>
+              <p className="text-sm text-slate-400">Built to convert quickly without dragging buyers through a big SaaS setup.</p>
+            </div>
+            <a href="/docs" className="text-sm font-medium text-cyan-300 hover:text-cyan-200">See full API docs →</a>
+          </div>
+          <div className="mt-6 grid gap-4 lg:grid-cols-3">
+            {plans.map((plan) => {
+              const href = plan.key === "free" ? "/docs" : `/docs#checkout-${plan.key}`;
+              const highlight = plan.key === "pro";
+              return (
+                <div key={plan.key} className={`rounded-3xl border p-6 ${highlight ? "border-cyan-400/40 bg-cyan-500/10" : "border-white/10 bg-black/20"}`}>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">{plan.name}</p>
+                  <div className="mt-3 text-4xl font-black text-white">{formatPlanPrice(plan.key)}</div>
+                  <p className="mt-2 text-sm text-slate-300">{plan.monthlyRequests.toLocaleString()} requests/month · {plan.burstPerMinute}/min burst</p>
+                  <ul className="mt-5 space-y-2 text-sm text-slate-200">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex gap-2"><span className="text-emerald-300">✓</span><span>{feature}</span></li>
+                    ))}
+                  </ul>
+                  <a href={href} className={`mt-6 inline-flex rounded-xl px-4 py-3 font-semibold transition ${highlight ? "bg-cyan-400 text-gray-950 hover:bg-cyan-300" : "border border-white/10 bg-white/5 text-white hover:bg-white/10"}`}>
+                    {plan.cta}
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       </div>
     </main>
   );
