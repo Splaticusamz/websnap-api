@@ -1,71 +1,129 @@
-# 🌐 WebSnap API
+# WebSnap API
 
-**URL → Structured JSON in one API call.**
+URL → structured JSON in one API call.
 
-Extract titles, descriptions, OG tags, content, links, images, and tech stack from any URL. Built for AI agents and developers who need fast, reliable web data extraction.
+WebSnap API extracts titles, descriptions, Open Graph tags, Twitter cards, links, images, content, and detected tech stack from public webpages. It is positioned as a lightweight API product for AI agents, workflow builders, lead-enrichment tools, and internal automation.
+
+## Status
+
+- Project: live and deployed
+- Framework: Next.js 14 + TypeScript
+- Deployment target: Vercel
+- Source control: Git + GitHub
+- Current phase: infrastructure / packaging / monetization prep
 
 ## Architecture
 
-```
-Client → POST /api/snap { url } → Next.js API Route → Cheerio Parse → Structured JSON
-```
-
-- **Runtime:** Next.js 14 (App Router) on Vercel Edge
-- **Parsing:** Cheerio (server-side HTML parsing)
-- **Auth:** API key via `x-api-key` header
-- **Rate Limiting:** In-memory → Vercel KV (planned)
-
-## API
-
-### `POST /api/snap`
-
-**Request:**
-```json
-{ "url": "https://example.com" }
+```text
+Client
+  -> POST /api/snap
+  -> Next.js route handler
+  -> fetch target URL
+  -> Cheerio parse + extraction
+  -> structured JSON response
 ```
 
-**Response:**
-```json
-{
-  "title": "Example Domain",
-  "description": "...",
-  "ogTags": { "og:title": "...", "og:image": "..." },
-  "favicon": "https://example.com/favicon.ico",
-  "mainContent": "cleaned text extract...",
-  "links": ["..."],
-  "images": ["..."],
-  "techStack": ["Next.js", "React", "Vercel"],
-  "performance": { "responseTimeMs": 234, "contentSizeBytes": 15420 }
-}
-```
-
-### `GET /api/health`
-
-Returns service status and version.
+Core pieces:
+- `src/app/api/snap/route.ts` — API entrypoint
+- `src/app/api/health/route.ts` — health endpoint
+- `src/lib/auth.ts` — API key lookup
+- `src/lib/rate-limit.ts` — in-memory rate limiting
+- `src/lib/content-extract.ts` — main content extraction
+- `src/lib/tech-detect.ts` — technology detection heuristics
 
 ## Revenue Model
 
-| Tier | Price | Requests/day |
-|------|-------|-------------|
-| Free | $0 | 100 |
-| Pro | $9/mo | 10,000 |
-| Enterprise | $49/mo | 100,000 |
+### Target buyers
+- AI agent builders
+- workflow automation developers
+- lead-enrichment/data-enrichment tools
+- internal tools teams turning webpages into JSON
 
-Distribution channels:
-- **RapidAPI Marketplace** (freemium listing)
-- **Direct API keys** (Stripe metered billing)
+### Planned tiers
+- **Free** — 100 requests/day, public docs, basic use
+- **Pro** — $19/mo, 10,000 requests/month, higher limits
+- **Business** — $79/mo, 100,000 requests/month, priority support/commercial use
 
-## Getting Started
+### Distribution paths
+- Direct docs-led acquisition
+- Hosted checkout via Stripe
+- Marketplace listing via RapidAPI
+
+See also:
+- `docs/PRICING.md`
+- `docs/BILLING_SETUP.md`
+- `docs/RAPIDAPI-LISTING.md`
+
+## Repository Structure
+
+```text
+.
+├── CHANGELOG.md
+├── README.md
+├── docs/
+│   ├── API.md
+│   ├── ARCHITECTURE.md
+│   ├── BILLING_SETUP.md
+│   ├── DEPLOYMENT.md
+│   ├── PRICING.md
+│   └── RAPIDAPI-LISTING.md
+├── src/
+│   ├── app/
+│   ├── data/
+│   └── lib/
+└── .env.example
+```
+
+## Local Development
 
 ```bash
 npm install
 npm run dev
-# → http://localhost:3000
+```
+
+App will start on `http://localhost:3000`.
+
+## Build
+
+```bash
+npm run build
 ```
 
 ## Deployment
 
-Deployed on Vercel. Push to `main` triggers auto-deploy.
+This repo is already linked to Vercel.
+
+Typical flow:
+1. Push to `main`
+2. Vercel builds automatically
+3. Production deploy updates
+
+Deployment notes live in `docs/DEPLOYMENT.md`.
+
+## Environment Configuration
+
+Copy `.env.example` to `.env.local` for local work.
+
+Current env scaffolding covers:
+- API service metadata
+- rate-limit configuration placeholders
+- Stripe placeholders
+- RapidAPI placeholders
+- Vercel app URL
+
+## Current Constraints
+
+- Rate limiting is currently in-memory, not persistent
+- Billing automation is not yet enforced end-to-end
+- API key provisioning is still partially manual
+- Marketplace distribution is prepared but not yet submitted
+
+## Near-Term Infrastructure Goals
+
+- keep docs and pricing consistent
+- preserve Vercel-ready deploy path
+- prepare Stripe and RapidAPI config without overbuilding
+- maintain professional repo structure before feature expansion
 
 ## License
 
