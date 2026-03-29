@@ -1,4 +1,4 @@
-import { getApiKeyInventory } from "@/lib/auth";
+import { getApiKeyInventory, isSignedKeyProvisioningEnabled } from "@/lib/auth";
 import { config } from "@/lib/config";
 import { getRateLimitSnapshot } from "@/lib/rate-limit";
 import { getPlanEntries } from "@/lib/plans";
@@ -59,6 +59,7 @@ export function getOperatorSnapshot() {
       business: Boolean(config.billing.businessCheckoutLink || config.billing.businessPriceId),
     },
     webhookMode: config.billing.webhookSecret ? "shared-secret" : "disabled",
+    provisioningMode: isSignedKeyProvisioningEnabled() ? "signed-stateless" : "disabled",
     apiKeys: {
       total: keys.length,
       enabled: keys.filter((key) => key.enabled).length,
@@ -85,6 +86,10 @@ export function getOperatorSnapshot() {
       {
         label: "Billing webhook secret configured",
         status: config.billing.webhookSecret ? "done" : "needs-config",
+      },
+      {
+        label: "Stateless signed key provisioning configured",
+        status: isSignedKeyProvisioningEnabled() ? "done" : "needs-config",
       },
       {
         label: "At least one enabled paid API key seeded",

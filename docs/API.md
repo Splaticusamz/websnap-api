@@ -10,6 +10,7 @@ Production: `https://websnap-api.vercel.app`
 - Paid plans should send `x-api-key`.
 - Webhook automation uses `x-websnap-webhook-secret`.
 - Ops automation uses `Authorization: Bearer <WEBSNAP_OPS_TOKEN>` when configured.
+- Paid keys can be seeded via `API_KEYS_JSON` or issued as signed stateless keys when `WEBSNAP_API_KEY_SIGNING_SECRET` is configured.
 
 ## Endpoints
 
@@ -101,6 +102,26 @@ Receives billing events for plan mapping / provisioning.
 **Response:**
 Returns the derived plan tier, customer email (when present), event type, and next recommended provisioning action.
 
+### POST /api/ops/provision-key
+
+Protected operator endpoint for issuing a signed stateless API key without a database.
+
+**Headers:**
+- `Authorization: Bearer <WEBSNAP_OPS_TOKEN>`
+
+**Body:**
+```json
+{
+  "plan": "pro",
+  "name": "Acme",
+  "email": "buyer@example.com",
+  "daysValid": 30
+}
+```
+
+**Response:**
+Returns the plaintext API key, a masked preview, expiry (if supplied), and a ready-to-run curl example.
+
 ### GET /api/ops/status
 
 Internal automation endpoint for cron or monitoring.
@@ -109,7 +130,7 @@ Internal automation endpoint for cron or monitoring.
 - `Authorization: Bearer <WEBSNAP_OPS_TOKEN>` (optional if using cron-source fallback)
 
 **Response:**
-Returns automation readiness, plan summary, and app metadata.
+Returns automation readiness, provisioning mode, plan summary, and app metadata.
 
 ## Rate Limits
 

@@ -24,7 +24,7 @@ export default function DashboardPage() {
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">Operator dashboard</p>
               <h1 className="mt-3 text-4xl font-black text-white md:text-5xl">WebSnap monetization + ops cockpit</h1>
               <p className="mt-4 max-w-3xl text-slate-300">
-                Current plan packaging, checkout readiness, seeded keys, and in-memory usage visibility for the live MVP.
+                Current plan packaging, checkout readiness, signed-key provisioning, seeded keys, and in-memory usage visibility for the live MVP.
                 This is intentionally lightweight: enough signal to operate and sell the product without adding a database first.
               </p>
             </div>
@@ -44,6 +44,10 @@ export default function DashboardPage() {
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                 <p className="text-slate-400">Webhook mode</p>
                 <p className="mt-2 text-lg font-black text-white">{snapshot.webhookMode}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 col-span-2 sm:col-span-4">
+                <p className="text-slate-400">Provisioning mode</p>
+                <p className="mt-2 text-lg font-black text-cyan-300">{snapshot.provisioningMode}</p>
               </div>
             </div>
           </div>
@@ -103,7 +107,7 @@ export default function DashboardPage() {
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
             <h2 className="text-2xl font-bold text-white">Seeded API key inventory</h2>
-            <p className="mt-1 text-sm text-slate-400">Masked keys only. Good enough for ops visibility without leaking credentials.</p>
+            <p className="mt-1 text-sm text-slate-400">Masked seeded keys only. Signed stateless keys can be issued on demand via the ops provisioning endpoint.</p>
             <div className="mt-5 space-y-3">
               {snapshot.apiKeys.inventory.map((key) => (
                 <div key={`${key.maskedKey}-${key.name}`} className="rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -165,7 +169,8 @@ export default function DashboardPage() {
               ["Self-serve onboarding", "Homepage and docs now lean harder into try-it, examples, and direct upgrade paths."],
               ["Checkout UX", "Paid plan CTAs can hit the checkout resolver and tell operators exactly what is configured."],
               ["Usage visibility", "Operator surfaces now show masked key inventory and live current-window usage without a DB."],
-              ["Operator tooling", "Ops status endpoint now returns onboarding readiness, plan coverage, keys, and recent usage snapshot."],
+              ["Signed key provisioning", "Ops can now mint verifiable stateless API keys instantly without adding a database."],
+              ["Operator tooling", "Ops status endpoint now returns onboarding readiness, plan coverage, keys, provisioning mode, and recent usage snapshot."],
             ].map(([title, description]) => (
               <div key={title} className="rounded-2xl border border-white/10 bg-black/20 p-5">
                 <h3 className="font-semibold text-white">{title}</h3>

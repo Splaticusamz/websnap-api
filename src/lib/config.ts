@@ -10,6 +10,9 @@ export const config = {
   ops: {
     token: process.env.WEBSNAP_OPS_TOKEN || "",
   },
+  auth: {
+    keySigningSecret: process.env.WEBSNAP_API_KEY_SIGNING_SECRET || process.env.API_KEY_SIGNING_SECRET || "",
+  },
   billing: {
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET || process.env.WEBSNAP_BILLING_WEBHOOK_SECRET || "",
     proPriceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID || "",

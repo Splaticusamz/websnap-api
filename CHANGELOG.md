@@ -1,3 +1,14 @@
+## 0.1.3 - 2026-03-29
+
+### Added
+- signed stateless API key generation + verification
+- protected `POST /api/ops/provision-key` endpoint for operator-issued keys
+- provisioning mode visibility in ops status + dashboard
+
+### Changed
+- docs and README now describe paid-key provisioning without a database
+- dashboard copy now reflects signed key issuance as part of the monetization path
+
 # Changelog
 
 ## [0.1.4] - 2026-03-28

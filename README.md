@@ -12,7 +12,8 @@ WebSnap API extracts titles, descriptions, Open Graph tags, Twitter cards, links
 - Checkout + webhook + cron automation scaffolding added
 - Home + docs now provide a stronger self-serve onboarding and proof-of-value path
 - Landing page and docs include direct paid-plan checkout testing + fallback messaging
-- Operator dashboard now reflects real billing/config readiness, masked key inventory, and current-window usage visibility
+- Operator dashboard now reflects real billing/config readiness, provisioning mode, masked key inventory, and current-window usage visibility
+- Signed stateless API key provisioning is supported for paid/manual fulfillment without a database
 - Ready for direct docs-led distribution and RapidAPI submission prep
 
 ## Why this product
@@ -38,6 +39,7 @@ That makes it a strong fit for:
 - `GET /api/health` — health status
 - `POST /api/billing/checkout` — resolve the current checkout path for a paid plan
 - `POST /api/billing/webhook` — receive billing automation events
+- `POST /api/ops/provision-key` — issue a signed stateless API key for a customer
 - `GET /api/ops/status` — internal ops / cron automation snapshot
 
 ## Pricing
@@ -63,6 +65,7 @@ This repo now includes automation-friendly infrastructure:
 - ops status endpoint for internal monitoring
 - masked API key inventory + recent in-memory usage snapshots for operators
 - env-based API key loading for automated provisioning paths
+- signed stateless API keys for fast paid/manual fulfillment
 
 ## Tech Stack
 
@@ -116,6 +119,7 @@ Important variables include:
 - `NEXT_PUBLIC_APP_URL`
 - `API_KEYS_JSON`
 - `WEBSNAP_OPS_TOKEN`
+- `WEBSNAP_API_KEY_SIGNING_SECRET`
 - `NEXT_PUBLIC_STRIPE_PRO_CHECKOUT_LINK`
 - `NEXT_PUBLIC_STRIPE_BUSINESS_CHECKOUT_LINK`
 - `STRIPE_WEBHOOK_SECRET`
@@ -130,9 +134,10 @@ Important variables include:
 ## Current Constraints
 
 - rate limiting and usage counters are in-memory for now
-- paid provisioning still depends on real Stripe/live account config
+- checkout still depends on real Stripe/live account config for full self-serve billing
 - no persistent database yet for usage or customers
-- manual fallback is clear, but full self-serve checkout still needs live Stripe configuration
+- manual fallback is now stronger because ops can issue signed paid keys instantly
+- full self-serve checkout still needs live Stripe configuration
 - bot-protected targets may need future browser fallback
 
 ## Near-Term Next Moves

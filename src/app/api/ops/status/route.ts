@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
     automation: {
       cronConfigured: true,
       webhookMode: snapshot.webhookMode,
+      provisioningMode: snapshot.provisioningMode,
       checkoutConfigured: snapshot.checkoutConfigured,
     },
     plans: snapshot.tierBreakdown,

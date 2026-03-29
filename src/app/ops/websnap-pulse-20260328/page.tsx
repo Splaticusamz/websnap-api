@@ -45,6 +45,7 @@ const phases: { name: string; status: string; color: string; tasks: [string, boo
       ["Landing page checkout UX", true],
       ["Operator readiness dashboard", true],
       ["Masked key inventory + usage visibility", true],
+      ["Signed stateless key provisioning", true],
       ["Direct Stripe live config", false],
       ["First paid conversions", false],
     ],
@@ -55,6 +56,7 @@ const revenueTimeline = [
   { label: "Mar 27", title: "Build + deploy core API", revenue: "$0", state: "done" },
   { label: "Mar 28", title: "Packaging + monetization prep", revenue: "$0", state: "done" },
   { label: "Mar 28", title: "Automation layer + checkout UX shipped", revenue: "$0", state: "active" },
+  { label: "Mar 29", title: "Signed key provisioning + operator issuance", revenue: "$0", state: "active" },
   { label: "Mar 30", title: "Marketplace + hosted checkout live", revenue: "$0-19", state: "next" },
   { label: "Apr 8-15", title: "First real paid conversion window", revenue: "$19-98", state: "next" },
   { label: "May", title: "Steady funnel optimization", revenue: "$100-300", state: "later" },
@@ -65,6 +67,7 @@ const stats = [
   { label: "Best channel", value: "Docs-led API", tone: "emerald" },
   { label: "Target buyers", value: "Agent builders", tone: "blue" },
   { label: "Monthly cost", value: "$0-$20", tone: "violet" },
+  { label: "Provisioning", value: "Signed keys", tone: "blue" },
   { label: "Expected first profit", value: "~2-3 weeks", tone: "amber" },
 ];
 
@@ -132,7 +135,7 @@ export default function HustleOpsDashboard() {
 
   const projectedBars = [
     { label: "Shipping speed", value: 88, tone: "emerald" },
-    { label: "Monetization readiness", value: 79, tone: "amber" },
+    { label: "Monetization readiness", value: 84, tone: "amber" },
     { label: "Distribution readiness", value: 68, tone: "blue" },
     { label: "Revenue confidence", value: 59, tone: "violet" },
   ];
@@ -156,6 +159,7 @@ export default function HustleOpsDashboard() {
                 <Badge tone="emerald">✅ Core API shipped</Badge>
                 <Badge tone="amber">💳 Billing scaffolding live</Badge>
                 <Badge tone="blue">⏰ Cron + webhook automation added</Badge>
+                <Badge tone="emerald">🔐 Signed key provisioning shipped</Badge>
               </div>
             </div>
 
