@@ -2,7 +2,7 @@
 
 Turn any public webpage into structured JSON in one API call.
 
-WebSnap API extracts titles, descriptions, Open Graph tags, Twitter cards, links, images, cleaned main content, and detected tech stack from public webpages. It is built for AI agents, workflow automation, lead enrichment, SEO tooling, and internal developer systems.
+WebSnap API extracts titles, descriptions, Open Graph tags, Twitter cards, links, images, cleaned main content, headings, contact/social signals, JSON-LD structured data, and detected tech stack from public webpages. It is built for AI agents, workflow automation, lead enrichment, SEO tooling, and internal developer systems.
 
 ## Current Status
 
@@ -31,6 +31,7 @@ That makes it a strong fit for:
 - automation developers
 - outbound / enrichment workflows
 - metadata and content ingestion pipelines
+- homepage/contact enrichment workflows
 - internal research tools
 
 ## Main Endpoints

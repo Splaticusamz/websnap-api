@@ -29,6 +29,97 @@ function resolveUrl(base: string, relative: string | undefined): string {
   }
 }
 
+function parseJsonLdBlocks($: cheerio.CheerioAPI) {
+  const blocks: unknown[] = [];
+
+  $('script[type="application/ld+json"]').each((_, el) => {
+    const raw = $(el).contents().text().trim();
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        blocks.push(...parsed);
+      } else {
+        blocks.push(parsed);
+      }
+    } catch {
+      blocks.push({ raw });
+    }
+  });
+
+  return blocks.slice(0, 10);
+}
+
+function extractHeadings($: cheerio.CheerioAPI) {
+  const sections = {
+    h1: [] as string[],
+    h2: [] as string[],
+    h3: [] as string[],
+  };
+
+  (["h1", "h2", "h3"] as const).forEach((tag) => {
+    $(tag).each((_, el) => {
+      const text = $(el).text().replace(/\s+/g, " ").trim();
+      if (text && sections[tag].length < 12) {
+        sections[tag].push(text.slice(0, 220));
+      }
+    });
+  });
+
+  return sections;
+}
+
+function extractContactSignals($: cheerio.CheerioAPI, url: string) {
+  const emails = new Set<string>();
+  const phones = new Set<string>();
+  const socialProfiles: { platform: string; url: string }[] = [];
+  const seenSocial = new Set<string>();
+
+  $('a[href]').each((_, el) => {
+    const href = $(el).attr('href')?.trim();
+    if (!href) return;
+
+    if (href.startsWith('mailto:')) {
+      const value = href.slice('mailto:'.length).split('?')[0].trim();
+      if (value) emails.add(value.toLowerCase());
+      return;
+    }
+
+    if (href.startsWith('tel:')) {
+      const value = href.slice('tel:'.length).trim();
+      if (value) phones.add(value);
+      return;
+    }
+
+    const absolute = resolveUrl(url, href);
+    const patterns: [string, RegExp][] = [
+      ['linkedin', /linkedin\.com/i],
+      ['x', /(^|\.)x\.com/i],
+      ['twitter', /twitter\.com/i],
+      ['github', /github\.com/i],
+      ['facebook', /facebook\.com/i],
+      ['instagram', /instagram\.com/i],
+      ['youtube', /youtube\.com|youtu\.be/i],
+      ['tiktok', /tiktok\.com/i],
+    ];
+
+    for (const [platform, pattern] of patterns) {
+      if (pattern.test(absolute) && !seenSocial.has(`${platform}:${absolute}`)) {
+        seenSocial.add(`${platform}:${absolute}`);
+        socialProfiles.push({ platform, url: absolute });
+        break;
+      }
+    }
+  });
+
+  return {
+    emails: Array.from(emails).slice(0, 10),
+    phones: Array.from(phones).slice(0, 10),
+    socialProfiles: socialProfiles.slice(0, 20),
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Auth
@@ -183,6 +274,10 @@ export async function POST(req: NextRequest) {
       robots: $('meta[name="robots"]').attr("content") || null,
     };
 
+    const headings = extractHeadings($);
+    const contact = extractContactSignals($, url);
+    const structuredData = parseJsonLdBlocks($);
+
     // Build response
     const result: Record<string, unknown> = {
       url: parsedUrl.href,
@@ -195,6 +290,9 @@ export async function POST(req: NextRequest) {
       links,
       images,
       meta,
+      headings,
+      contact,
+      structuredData,
     };
 
     // Optional: content

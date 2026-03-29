@@ -45,6 +45,13 @@ Extract structured data from a public URL.
   "ogTags": {},
   "twitterCard": {},
   "meta": {},
+  "headings": { "h1": ["..."], "h2": ["..."], "h3": [] },
+  "contact": {
+    "emails": ["hello@example.com"],
+    "phones": [],
+    "socialProfiles": [{ "platform": "linkedin", "url": "https://linkedin.com/company/example" }]
+  },
+  "structuredData": [{ "@type": "Organization" }],
   "mainContent": "...",
   "links": [],
   "images": [],
@@ -143,6 +150,7 @@ Returns automation readiness, provisioning mode, plan summary, and app metadata.
 ## Use Cases
 
 - lead enrichment from company homepages
+- contact + social signal extraction for outbound workflows
 - article / docs ingestion for AI agents
 - scheduled metadata snapshots in cron jobs
 - webhook-triggered URL parsing in automations

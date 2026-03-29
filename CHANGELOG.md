@@ -4,6 +4,7 @@
 - signed stateless API key generation + verification
 - protected `POST /api/ops/provision-key` endpoint for operator-issued keys
 - provisioning mode visibility in ops status + dashboard
+- richer extraction output: headings, contact/social signals, and parsed JSON-LD blocks
 
 ### Changed
 - docs and README now describe paid-key provisioning without a database

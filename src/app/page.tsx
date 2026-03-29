@@ -83,7 +83,7 @@ export default function Home() {
               <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-200">
                 {[
                   "Fast setup for agents and pipelines",
-                  "Titles, OG tags, content, links, images, tech stack",
+                  "Titles, OG tags, headings, contact signals, JSON-LD, tech stack",
                   "Free tier + direct paid upgrade path",
                 ].map((item) => (
                   <span key={item} className="rounded-full border border-white/10 bg-white/5 px-4 py-2">{item}</span>
@@ -179,7 +179,7 @@ export default function Home() {
           {[
             ["Best for", "AI agents, enrichment, SEO, automations"],
             ["Core value", "HTML page in → structured JSON out"],
-            ["Differentiator", "Tech stack detection + clean content extraction"],
+            ["Differentiator", "Tech stack detection + content + contact/JSON-LD extraction"],
             ["Automation-ready", "Designed for scheduled jobs, webhooks, and pipelines"],
           ].map(([label, value]) => (
             <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
@@ -220,6 +220,7 @@ export default function Home() {
               ["Meta + OG", "Title, description, Open Graph tags, Twitter cards, favicon, canonical URL"],
               ["Main content", "Cleaned body text with navigation/script noise removed"],
               ["Links + images", "Internal/external links, image sources, alt text, dimensions when present"],
+              ["Contact + schema", "Mailto/tel links, social profiles, headings, and parsed JSON-LD blocks"],
               ["Tech detection", "Frameworks, CMSs, analytics, CDNs, hosting clues"],
               ["Performance", "Fetch timing, content size, HTTP status"],
               ["Operational headers", "Rate-limit headers tied to tier and request window"],
