@@ -170,6 +170,7 @@ export default function DashboardPage() {
               ["Checkout UX", "Paid plan CTAs can hit the checkout resolver and tell operators exactly what is configured."],
               ["Usage visibility", "Operator surfaces now show masked key inventory and live current-window usage without a DB."],
               ["Signed key provisioning", "Ops can now mint verifiable stateless API keys instantly without adding a database."],
+              ["Richer extraction", "Responses now include headings, contact/social signals, and parsed JSON-LD for higher-value enrichment workflows."],
               ["Operator tooling", "Ops status endpoint now returns onboarding readiness, plan coverage, keys, provisioning mode, and recent usage snapshot."],
             ].map(([title, description]) => (
               <div key={title} className="rounded-2xl border border-white/10 bg-black/20 p-5">

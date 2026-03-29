@@ -46,6 +46,7 @@ const phases: { name: string; status: string; color: string; tasks: [string, boo
       ["Operator readiness dashboard", true],
       ["Masked key inventory + usage visibility", true],
       ["Signed stateless key provisioning", true],
+      ["Richer extraction fields (headings/contact/schema)", true],
       ["Direct Stripe live config", false],
       ["First paid conversions", false],
     ],
@@ -56,7 +57,8 @@ const revenueTimeline = [
   { label: "Mar 27", title: "Build + deploy core API", revenue: "$0", state: "done" },
   { label: "Mar 28", title: "Packaging + monetization prep", revenue: "$0", state: "done" },
   { label: "Mar 28", title: "Automation layer + checkout UX shipped", revenue: "$0", state: "active" },
-  { label: "Mar 29", title: "Signed key provisioning + operator issuance", revenue: "$0", state: "active" },
+  { label: "Mar 29", title: "Signed key provisioning + operator issuance", revenue: "$0", state: "done" },
+  { label: "Mar 29", title: "Richer extraction for enrichment workflows", revenue: "$0", state: "active" },
   { label: "Mar 30", title: "Marketplace + hosted checkout live", revenue: "$0-19", state: "next" },
   { label: "Apr 8-15", title: "First real paid conversion window", revenue: "$19-98", state: "next" },
   { label: "May", title: "Steady funnel optimization", revenue: "$100-300", state: "later" },
@@ -137,7 +139,7 @@ export default function HustleOpsDashboard() {
     { label: "Shipping speed", value: 88, tone: "emerald" },
     { label: "Monetization readiness", value: 84, tone: "amber" },
     { label: "Distribution readiness", value: 68, tone: "blue" },
-    { label: "Revenue confidence", value: 59, tone: "violet" },
+    { label: "Revenue confidence", value: 63, tone: "violet" },
   ];
 
   return (
@@ -160,6 +162,7 @@ export default function HustleOpsDashboard() {
                 <Badge tone="amber">💳 Billing scaffolding live</Badge>
                 <Badge tone="blue">⏰ Cron + webhook automation added</Badge>
                 <Badge tone="emerald">🔐 Signed key provisioning shipped</Badge>
+                <Badge tone="emerald">🧠 Richer extraction output shipped</Badge>
               </div>
             </div>
 
