@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import { config } from "@/lib/config";
 import { authenticateRequest } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { checkFreeTierLimit } from "@/lib/free-rate-limit";
 import { detectTechStack } from "@/lib/tech-detect";
 import { extractMainContent } from "@/lib/content-extract";
 
@@ -125,17 +126,51 @@ export async function POST(req: NextRequest) {
     // Auth
     const apiKey = req.headers.get("x-api-key");
     const authResult = authenticateRequest(apiKey);
-
-    // Rate limit
     const clientIP = getClientIP(req);
+
+    // For unauthenticated requests, enforce 10 requests/day per IP
+    let freeTierRemaining = -1;
+    if (!authResult.authenticated) {
+      const ipLimit = checkFreeTierLimit(clientIP);
+      freeTierRemaining = ipLimit.remaining;
+      if (!ipLimit.allowed) {
+        return NextResponse.json(
+          {
+            error: "Free tier daily limit exceeded (10 requests/day)",
+            upgrade: "https://websnap-api.vercel.app/#pricing",
+            retryAfterMs: ipLimit.resetMs - Date.now(),
+          },
+          {
+            status: 429,
+            headers: {
+              "X-RateLimit-Limit": "10",
+              "X-RateLimit-Remaining": "0",
+              "X-RateLimit-Reset": String(Math.ceil(ipLimit.resetMs / 1000)),
+              "X-RateLimit-Plan": "free",
+            },
+          }
+        );
+      }
+    }
+
+    // Per-window rate limit (burst protection for authenticated users)
     const rlKey = authResult.authenticated ? `key:${apiKey}` : `ip:${clientIP}`;
     const rl = checkRateLimit(rlKey, authResult.tier);
 
     if (!rl.allowed) {
-      return NextResponse.json(
-        { error: "Rate limit exceeded", retryAfterMs: rl.resetMs - Date.now() },
-        { status: 429, headers: rl.headers }
-      );
+      const body: Record<string, unknown> = {
+        error: "Rate limit exceeded",
+        retryAfterMs: rl.resetMs - Date.now(),
+      };
+      if (!authResult.authenticated) {
+        body.upgrade = "https://websnap-api.vercel.app/#pricing";
+      }
+      return NextResponse.json(body, { status: 429, headers: rl.headers });
+    }
+
+    // For free tier, override the remaining header with daily IP limit info
+    if (!authResult.authenticated && freeTierRemaining >= 0) {
+      rl.headers["X-RateLimit-Remaining"] = String(freeTierRemaining);
     }
 
     // Parse body

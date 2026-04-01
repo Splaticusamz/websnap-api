@@ -1,3 +1,18 @@
+## [0.1.5] - 2026-04-01
+
+### Added
+- IP-based free tier rate limiting: 10 requests/day per IP when no API key provided
+- `X-RateLimit-Remaining` header reflects daily IP allowance for free users
+- 429 responses include `upgrade` URL pointing to pricing section
+- `GET /api/demo?url=` endpoint for landing page "Try it" feature (3 req/day per IP)
+- Interactive demo on homepage now uses `/api/demo` with inline upgrade CTA
+- Footer cross-link to llm-prices.vercel.app
+- Expanded RapidAPI listing doc with full endpoint documentation and pricing tiers
+
+### Changed
+- Homepage try-it section now routes through demo endpoint with tighter rate limits
+- Free tier snap requests enforce daily IP limits in addition to per-window burst limits
+
 ## 0.1.3 - 2026-03-29
 
 ### Added

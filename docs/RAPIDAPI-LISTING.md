@@ -1,46 +1,75 @@
-# RapidAPI Listing Draft
+# RapidAPI Listing — WebSnap API
 
-## Product Name
+## Marketplace Title
 
-WebSnap API
+**WebSnap API — Webpage to Structured JSON**
 
-## One-Line Summary
+## Short Description
 
-Turn any public webpage into structured JSON in one API call.
+Turn any public webpage into structured JSON in one API call. Extract metadata, OG tags, links, images, tech stack, contact signals, headings, JSON-LD, and cleaned main content. Built for AI agents, lead enrichment, automations, and developer workflows.
 
-## Positioning
+## Long Description
 
-Built for AI agents, enrichment pipelines, automation developers, and internal tools that need fast HTML extraction without running a headless browser stack.
+WebSnap API extracts structured data from any public webpage without running a headless browser. Send a URL, get back a rich JSON object containing:
 
-## Category Ideas
+- Title, description, canonical URL, favicon
+- Open Graph and Twitter Card tags
+- Internal/external links with anchor text
+- Images with alt text and dimensions
+- Cleaned main body content (nav/script noise removed)
+- Tech stack detection (frameworks, CDNs, CMSs, analytics)
+- Contact signals (emails, phone numbers, social profiles)
+- Headings hierarchy (h1, h2, h3)
+- Parsed JSON-LD structured data blocks
+- Performance metrics (fetch time, content length, status code)
 
-- Data
-- Developer Tools
-- Web Scraping
-- AI Tools
+Ideal for AI agent builders, outbound sales teams, SEO tool developers, and automation engineers.
+
+## Category Suggestions
+
+- **Primary:** Data
+- **Secondary:** Developer Tools, Web Scraping, AI Tools
 
 ## Tags
 
-web scraping, metadata, content extraction, open graph, tech stack detection, lead enrichment, ai agents, automation, seo, url parser
+web scraping, metadata extraction, open graph, tech stack detection, lead enrichment, ai agents, automation, seo, content extraction, json-ld, url parser, webpage analysis
 
-## Feature Bullets
+---
 
-- Extract title, description, OG tags, Twitter cards, and favicon
-- Pull links, images, and cleaned main content
-- Detect technologies such as Next.js, React, WordPress, Shopify, Cloudflare, and more
-- Return structured JSON suitable for agents, cron jobs, and pipelines
-- Lightweight API-first workflow with fast setup and simple pricing
+## Endpoint Documentation
 
-## Sample Request
+### `POST /api/snap`
 
-```bash
-curl -X POST https://websnap-api.vercel.app/api/snap \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your_key_here" \
-  -d '{"url":"https://example.com"}'
+Extract structured data from a webpage.
+
+**Headers:**
+
+| Header | Required | Description |
+|--------|----------|-------------|
+| `Content-Type` | Yes | `application/json` |
+| `x-api-key` | No | Your API key. Omit for free tier (10 req/day per IP). |
+
+**Request Body:**
+
+```json
+{
+  "url": "https://example.com",
+  "options": {
+    "includeContent": true,
+    "includeTechStack": true,
+    "includePerformance": true
+  }
+}
 ```
 
-## Sample Response
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `url` | string | Yes | Public HTTP/HTTPS URL to extract |
+| `options.includeContent` | boolean | No | Include cleaned main body text (default: true) |
+| `options.includeTechStack` | boolean | No | Include tech stack detection (default: true) |
+| `options.includePerformance` | boolean | No | Include fetch timing and size (default: true) |
+
+**Response (200):**
 
 ```json
 {
@@ -51,68 +80,99 @@ curl -X POST https://websnap-api.vercel.app/api/snap \
   "favicon": "https://example.com/favicon.ico",
   "ogTags": {
     "title": "Example Domain",
-    "description": "Example website for demonstrations.",
+    "description": "...",
     "image": null,
     "type": "website",
     "url": "https://example.com/",
     "siteName": "Example"
   },
-  "twitterCard": {
-    "card": null,
-    "title": null,
-    "description": null,
-    "image": null
-  },
-  "links": [],
-  "images": [],
-  "meta": {
-    "language": "en",
-    "charset": "utf-8",
-    "viewport": "width=device-width, initial-scale=1",
-    "robots": null
-  },
-  "mainContent": "Example content...",
-  "techStack": [
-    {
-      "name": "Cloudflare",
-      "confidence": "high",
-      "evidence": "Cloudflare headers"
-    }
-  ],
-  "performance": {
-    "fetchTimeMs": 142,
-    "contentLength": 1256,
-    "statusCode": 200
-  }
+  "twitterCard": { "card": null, "title": null, "description": null, "image": null },
+  "links": [{ "href": "https://...", "text": "Link text", "isExternal": true }],
+  "images": [{ "src": "https://...", "alt": "Alt text" }],
+  "meta": { "language": "en", "charset": "utf-8", "viewport": "...", "robots": null },
+  "headings": { "h1": ["Main Heading"], "h2": [], "h3": [] },
+  "contact": { "emails": [], "phones": [], "socialProfiles": [] },
+  "structuredData": [],
+  "mainContent": "Cleaned body text...",
+  "techStack": [{ "name": "Cloudflare", "confidence": "high", "evidence": "..." }],
+  "performance": { "fetchTimeMs": 142, "contentLength": 1256, "statusCode": 200 }
 }
 ```
 
-## Pricing Copy
+**Error Responses:**
 
-- Free: 100 requests/day for testing and light usage
-- Pro: $19/month for 10,000 requests/month
-- Business: $79/month for 100,000 requests/month
+| Status | Description |
+|--------|-------------|
+| 400 | Invalid JSON body or missing/invalid URL |
+| 422 | Non-HTML content type |
+| 429 | Rate limit exceeded (includes `upgrade` URL and `retryAfterMs`) |
+| 502 | Failed to fetch target URL |
+| 504 | Target URL timed out |
+
+**Rate Limit Headers (all responses):**
+
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | Max requests in current window |
+| `X-RateLimit-Remaining` | Requests remaining |
+| `X-RateLimit-Reset` | Unix timestamp when window resets |
+| `X-RateLimit-Plan` | Current tier (free/pro/business) |
+
+### `GET /api/demo?url=<url>`
+
+Lightweight demo endpoint for quick testing. Same output as POST /api/snap. Limited to 3 requests/day per IP.
+
+### `GET /api/health`
+
+Health check. Returns `{ "status": "ok" }`.
+
+---
+
+## Pricing Tiers (RapidAPI Mapping)
+
+### Basic (Free)
+
+- **Price:** $0/month
+- **Requests:** 10/day (no API key required)
+- **Rate limit:** 25 requests per 15-minute window
+- **Features:** Full JSON extraction, tech stack detection, content extraction
+
+### Pro
+
+- **Price:** $19/month
+- **Requests:** 10,000/month (1,000/day)
+- **Rate limit:** 1,000 requests per 15-minute window, 100/min burst
+- **Features:** All Basic features + higher burst limits, commercial usage
+
+### Business (Ultra/Mega)
+
+- **Price:** $79/month
+- **Requests:** 100,000/month (10,000/day)
+- **Rate limit:** 5,000 requests per 15-minute window, 1,000/min burst
+- **Features:** All Pro features + highest limits, batch workflows, priority support
+
+---
+
+## Sample cURL
+
+```bash
+curl -X POST https://websnap-api.vercel.app/api/snap \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{"url":"https://stripe.com"}'
+```
 
 ## Buyer Use Cases
 
-- lead enrichment from company homepages
-- article ingestion for AI agents
-- tech stack lookup before outbound outreach
-- metadata extraction for SEO and automation tools
-- scheduled webpage checks in cron-driven workflows
-- webhook-triggered parsing in pipeline automations
+- Lead enrichment from company homepages before outreach
+- Article/docs ingestion for AI agent context windows
+- Tech stack lookup for competitive analysis
+- SEO metadata extraction and QA
+- Scheduled webpage monitoring in cron workflows
+- Webhook-triggered parsing in data pipelines
 
-## Assets to Prepare
+## Caveats
 
-- logo
-- homepage screenshot
-- docs screenshot
-- example JSON screenshot
-- pricing screenshot
-- ops/automation diagram screenshot (optional)
-
-## Caveats to Mention Clearly
-
-- targets must be publicly accessible
-- highly bot-protected pages may not work reliably without future browser fallback
-- current product focus is fast HTML extraction, not full browser automation
+- Targets must be publicly accessible (no auth-walled pages)
+- Bot-protected pages may return incomplete data
+- HTML extraction only — no JavaScript rendering or screenshots

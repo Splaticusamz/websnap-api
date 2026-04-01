@@ -50,14 +50,7 @@ export default function Home() {
     setError(null);
     setResult(null);
     try {
-      const res = await fetch("/api/snap", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url,
-          options: { includeContent: true, includeTechStack: true, includePerformance: true },
-        }),
-      });
+      const res = await fetch(`/api/demo?url=${encodeURIComponent(url)}`);
       const data = await res.json();
       if (!res.ok) setError(data.error || `HTTP ${res.status}`);
       else setResult(JSON.stringify(data, null, 2));
@@ -150,7 +143,17 @@ export default function Home() {
               </button>
             </div>
             {error && <div className="mt-4 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-300">{error}</div>}
-            {result && <pre className="mt-4 max-h-[420px] overflow-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-sm text-emerald-300">{result}</pre>}
+            {result && (
+              <>
+                <pre className="mt-4 max-h-[420px] overflow-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-sm text-emerald-300">{result}</pre>
+                <div className="mt-4 rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-4 text-center">
+                  <p className="text-sm text-slate-200">Want more? The demo is limited to 3 requests/day.</p>
+                  <a href="#pricing" className="mt-2 inline-block rounded-xl bg-cyan-400 px-5 py-2 text-sm font-semibold text-gray-950 transition hover:bg-cyan-300">
+                    Get an API key →
+                  </a>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
@@ -289,6 +292,14 @@ export default function Home() {
             })}
           </div>
         </section>
+        <footer className="mt-10 border-t border-white/10 pt-6 text-center text-sm text-slate-500">
+          <p>
+            WebSnap API · Built for developers and AI agents ·{" "}
+            <a href="https://llm-prices.vercel.app" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300">
+              Compare LLM prices → llm-prices.vercel.app
+            </a>
+          </p>
+        </footer>
       </div>
     </main>
   );
