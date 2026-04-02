@@ -92,6 +92,63 @@ console.table(results.map((r) => ({
   -H "Content-Type: application/json" \\
   -d '{"url":"https://github.com"}' | jq .title`,
   },
+  {
+    lang: "Error Handling (Node.js)",
+    code: `async function snapWithRetry(url: string, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    const res = await fetch("https://websnap-api.vercel.app/api/snap", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.WEBSNAP_API_KEY!,
+      },
+      body: JSON.stringify({ url, options: { includeContent: true } }),
+    });
+
+    if (res.status === 429) {
+      // Rate limited — wait and retry
+      const waitMs = parseInt(res.headers.get("retry-after") || "2") * 1000;
+      await new Promise((r) => setTimeout(r, waitMs));
+      continue;
+    }
+
+    if (!res.ok) throw new Error(\`Snap failed: \${res.status}\`);
+    return await res.json();
+  }
+  throw new Error("Max retries exceeded");
+}`,
+  },
+  {
+    lang: "Webhook — Next.js Route Handler",
+    code: `// app/api/snap-webhook/route.ts
+// Process WebSnap results asynchronously
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  const urls = ["https://example.com", "https://stripe.com"];
+
+  const results = await Promise.allSettled(
+    urls.map(async (url) => {
+      const res = await fetch("https://websnap-api.vercel.app/api/snap", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.WEBSNAP_API_KEY!,
+        },
+        body: JSON.stringify({
+          url,
+          options: { includeContent: true, includeTechStack: true },
+        }),
+      });
+      return { url, data: await res.json() };
+    })
+  );
+
+  // Store results in your database
+  const successful = results.filter((r) => r.status === "fulfilled");
+  return NextResponse.json({ processed: successful.length });
+}`,
+  },
 ];
 
 export default function ExamplesPage() {
