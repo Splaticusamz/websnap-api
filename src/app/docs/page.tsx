@@ -257,6 +257,137 @@ export default function DocsPage() {
           </div>
         </section>
 
+        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <h2 className="text-2xl font-bold text-white">Language examples</h2>
+          <p className="mt-2 text-sm text-slate-400">WebSnap API is a plain HTTP endpoint — call it from any language with no SDK required.</p>
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            <div>
+              <p className="mb-2 text-sm font-semibold text-cyan-300">Python (requests)</p>
+              <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-xs leading-6 text-slate-200">{`import requests
+
+response = requests.post(
+    "https://websnap-api.vercel.app/api/snap",
+    headers={
+        "Content-Type": "application/json",
+        "x-api-key": "your_key_here",
+    },
+    json={
+        "url": "https://stripe.com",
+        "options": {
+            "includeContent": True,
+            "includeTechStack": True,
+        }
+    }
+)
+data = response.json()
+print(data["title"])          # "Stripe"
+print(data["techStack"])      # [{"name": "React", ...}]
+print(data["ogTags"]["title"])# OG title tag`}</pre>
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-semibold text-cyan-300">Node.js (fetch)</p>
+              <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-xs leading-6 text-slate-200">{`const response = await fetch(
+  "https://websnap-api.vercel.app/api/snap",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": "your_key_here",
+    },
+    body: JSON.stringify({
+      url: "https://vercel.com",
+      options: {
+        includeContent: true,
+        includeTechStack: true,
+        includePerformance: true,
+      },
+    }),
+  }
+);
+const data = await response.json();
+console.log(data.title);         // "Vercel"
+console.log(data.links.length);  // number of links found`}</pre>
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-semibold text-cyan-300">LangChain / AI agent tool</p>
+              <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-xs leading-6 text-slate-200">{`from langchain.tools import tool
+import requests
+
+@tool
+def websnap(url: str) -> dict:
+    """Fetch structured metadata from a webpage URL."""
+    r = requests.post(
+        "https://websnap-api.vercel.app/api/snap",
+        headers={"x-api-key": "your_key_here"},
+        json={"url": url, "options": {"includeContent": True}}
+    )
+    return r.json()
+
+# Now pass to any LangChain agent
+# agent.run("What does stripe.com do?", tools=[websnap])`}</pre>
+            </div>
+            <div>
+              <p className="mb-2 text-sm font-semibold text-cyan-300">n8n / Make.com HTTP node</p>
+              <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-[#020617] p-4 text-xs leading-6 text-slate-200">{`Method:  POST
+URL:     https://websnap-api.vercel.app/api/snap
+Headers:
+  Content-Type: application/json
+  x-api-key:    {{$credentials.websnap_key}}
+
+Body (JSON):
+{
+  "url": "{{ $json.lead_website }}",
+  "options": {
+    "includeContent": true,
+    "includeTechStack": true
+  }
+}
+
+# Map outputs to your CRM fields:
+# data.title       → Company Name
+# data.description → Company Description
+# data.techStack   → Tech Stack Tags`}</pre>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <h2 className="text-2xl font-bold text-white">FAQ</h2>
+          <div className="mt-6 space-y-6 text-sm text-slate-300">
+            {[
+              {
+                q: "What does WebSnap API actually return?",
+                a: "A structured JSON object with title, description, headings, Open Graph tags, Twitter card data, canonical URL, all links, images, JSON-LD structured data, tech stack detection, and optional full page content. Everything from one HTTP call.",
+              },
+              {
+                q: "Does it render JavaScript / SPAs?",
+                a: "Yes. WebSnap uses a headless rendering pipeline that executes JavaScript, so React, Next.js, Vue, and Angular apps return full content — not just the blank HTML shell.",
+              },
+              {
+                q: "Is there a free tier?",
+                a: "Yes. You can use WebSnap API without an API key for a limited number of requests per day. Add a key to unlock higher limits and paid plan tiers.",
+              },
+              {
+                q: "How fast is it?",
+                a: "Median response time is under 2 seconds for most pages. Complex SPAs or slow targets may take up to 8 seconds. The API times out at 15 seconds and returns a 504.",
+              },
+              {
+                q: "Can I use it in a cron job or scheduled pipeline?",
+                a: "Yes — it's a stateless HTTP endpoint. Any scheduler (Vercel Cron, GitHub Actions, n8n, Zapier) can call it on a schedule. Use a paid plan for higher rate limits in automated pipelines.",
+              },
+              {
+                q: "Does it work with auth-gated pages?",
+                a: "No — WebSnap API only fetches publicly accessible pages. It doesn't support login, cookies, or session tokens.",
+              },
+            ].map(({ q, a }) => (
+              <div key={q} className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                <p className="font-semibold text-white">{q}</p>
+                <p className="mt-2 text-slate-400">{a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <footer className="pb-8 text-center text-sm text-slate-500">
           WebSnap API · <a href="/" className="text-cyan-300 hover:text-cyan-200">Home</a> · <a href="https://github.com/Splaticusamz/websnap-api" className="text-cyan-300 hover:text-cyan-200">GitHub</a>
         </footer>
